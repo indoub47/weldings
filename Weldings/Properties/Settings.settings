@@ -1,0 +1,45 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Weldings.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="PapildomoPastaba" Type="System.String" Scope="User">
+      <Value Profile="(Default)"> PT-{0}/{1}/{2:d}</Value>
+    </Setting>
+    <Setting Name="PirmiejiSuvirinimaiFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\pc\Documents\Visual Studio 2017\Projects\Weldings\DB\pirmieji.txt</Value>
+    </Setting>
+    <Setting Name="NepirmiejiSuvirinimaiFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\pc\Documents\Visual Studio 2017\Projects\Weldings\DB\kiti.txt</Value>
+    </Setting>
+    <Setting Name="Ifas" Type="System.String" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="OleDbConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Persist Security Info=False;</Value>
+    </Setting>
+    <Setting Name="AccessDbPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\pc\Documents\Visual Studio 2017\Projects\Weldings\DB\Def2010-IF4.mdb</Value>
+    </Setting>
+    <Setting Name="DataVerifyOutputFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\pc\Desktop\DataVerifyErrors.txt</Value>
+    </Setting>
+    <Setting Name="ApplicationName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Google Sheets API .NET</Value>
+    </Setting>
+    <Setting Name="SpreadsheetsJsonFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">./data/spreadsheets.json</Value>
+    </Setting>
+    <Setting Name="StartRow" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
+    <Setting Name="DateFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">yyyy-MM-dd</Value>
+    </Setting>
+    <Setting Name="OutputPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:/WeldingOutput</Value>
+    </Setting>
+    <Setting Name="DBBackupFilenameFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">db_backup {0:yyyy-MM-dd H-mm-ss}</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

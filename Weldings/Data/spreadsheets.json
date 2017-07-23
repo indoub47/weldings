@@ -1,0 +1,97 @@
+﻿{
+  "operators": [
+    {
+      "operatorid": "419",
+      "spreadsheetid": "1m6pL1su1Wb9MSdQnUat-xwRFdC9ewM5FR7rPq-5Sc4k",
+      "sheetgids": [ "0", "1129266386", "1421817110" ]
+    },
+    {
+      "operatorid": "407",
+      "spreadsheetid": "1NGhNHnP65SXEiKiAAItcJjAq2Se82BYye15eCL8QVzg",
+      "sheetgids": [ "0", "1129266386", "1421817110" ]
+    },
+    {
+      "operatorid": "422",
+      "spreadsheetid": "1YVBid6a1tnWPy0P4zumgS1Pb_5W697oiUj7gAS3ELTo",
+      "sheetgids": [ "0", "1129266386", "1421817110" ]
+    }
+  ],
+  "allranges": {
+    "pirmieji": {
+      "sheetname": "Pirmieji tikrinimai",
+      "rangeaddress": "'Pirmieji tikrinimai'!A3:K",
+      "startrow": 3,
+      "filtercolumn": {
+        "index": 10,
+        "celladdressformat": "'Pirmieji tikrinimai'!K{0}"
+      },
+      "fieldmappings": [
+        "Linia",
+        "Kel",
+        "kilomrtras",
+        "piket",
+        "metras",
+        "siule",
+        "saliginis kodas",
+        "suvirino",
+        "I_pat_data",
+        "I_pat_aparat",
+        "ivesta_db"
+      ]
+    },
+    "nepirmieji": {
+      "sheetname": "Kiti tikrinimai",
+      "rangeaddress": "'Kiti tikrinimai'!A3:L",
+      "startrow": 3,
+      "filtercolumn": {
+        "index": 11,
+        "celladdressformat": "'Kiti tikrinimai'!L{0}"
+      },
+      "fieldmappings": [
+        "number",
+        "Linia",
+        "Kel",
+        "kilomrtras",
+        "piket",
+        "metras",
+        "siule",
+        "saliginis kodas",
+        "tikrinimo_data",
+        "tikrinimo_aparatas",
+        "kelintas_tikrinimas",
+        "ivesta_db"
+      ]
+    },
+    "defektai": {
+      "sheetname": "Defektai",
+      "rangeaddress": "'Defektai'!A3:V",
+      "startrow": 2,
+      "filtercolumn": {
+        "index": 18,
+        "celladdressformat": "'Defektai'!Q{0}"
+      },
+      "fieldmappings": [
+        "skait",
+        "Uzrasas",
+        "Linija",
+        "Kelias",
+        "Km",
+        "Piketas",
+        "Metrai",
+        "Siule",
+        "Defekto_kodas",
+        "Def_L",
+        "Def_H",
+        "Def_pavoing",
+        "Begis",
+        "Gamykla",
+        "Pagam_metai",
+        "LK",
+        "Meistrija",
+        "Defektoskopas",
+        "Aptik_data",
+        "ivesta_db"
+      ]
+    }
+  }
+}

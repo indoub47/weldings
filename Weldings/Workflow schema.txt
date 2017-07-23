@@ -1,0 +1,40 @@
+﻿GSheetsConnector
+internal static SheetsService Connect()
+
+SpreadsheetsData
+public static string[] PirmiejiMapping
+public static string[] NepirmiejiMapping
+public static string[] DefektaiMapping
+public static int IndexOfPirmiejiFilterField
+public static int IndexOfNepirmiejiFilterField
+public static int IndexOfDefektaiFilterField
+public static Spreadsheets.Operator[] Operators
+public static Spreadsheets.Operator GetOperatorById(string operatorId)
+
+SheetDataFetcher
+internal static IList<IList<Object>> Fetch(string spreadsheetId, string range, int filterFieldIndex, SheetsService service)
+
+DataConverter
+internal static List<WeldingInspection> ConvertPirmieji(List<IList<Object>> data, string[] mapping, string operatorius)
+internal static List<WeldingInspection> ConvertNepirmieji(List<IList<Object>> data, string[] mapping, string operatorius)
+
+ObjectVerifier
+internal static StringBuilder VerifyData(List<WeldingInspection> wiListPirmieji, List<WeldingInspection> wiListNepirmieji)
+private static StringBuilder VerifyPirmieji(List<WeldingInspection> wiList)
+private static StringBuilder VerifyNepirmieji(List<WeldingInspection> wiList)
+private static List<long> VerifyByVieta(WeldingInspection wi, OleDbCommand cmd) - grąžina tokių pat id sąrašą
+private static List<string> VerifyById(WeldingInspection wi, OleDbCommand cmd) - grąžina problemų sąrašą
+
+DBUpdater
+internal static int DoPirmieji(List<WeldingInspection> wiList)
+internal static int DoNepirmieji(List<WeldingInspection> wiList)
+private static int InsertPirmieji(List<WeldingInspection> inspectionList, OleDbCommand cmd)
+private static int UpdateNepirmieji(List<WeldingInspection> inspectionList, OleDbCommand cmd)
+
+GSheetsUpdater
+ private static BatchUpdateValuesResponse UpdateSingleSpreadsheet(string spreadsheetId, Spreadsheets.SheetsRanges allRanges, SheetsService service)
+
+
+ReportCreator
+internal static StringBuilder CreateTxt(List<WeldingInspection>wiListPirmieji, List<WeldingInspection>wiListNepirmieji, string[] operators)
+________________________________________________________________________________________
