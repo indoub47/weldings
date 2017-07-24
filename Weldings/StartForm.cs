@@ -32,7 +32,15 @@ namespace Weldings
             
             using (StreamWriter sw = new StreamWriter(Properties.Settings.Default.DataVerifyOutputFilePath))
            {
-               sw.Write(Controller.fetchConvertVerify(service, operators, allRanges));
+                try
+                {
+                    sw.Write(Controller.fetchConvertVerify(service, operators, allRanges));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Klaida", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                MessageBox.Show("Done.\nDabar bus atidarytas failas su išvardintomis problemomis.");
                Process.Start(Properties.Settings.Default.DataVerifyOutputFilePath);
            }

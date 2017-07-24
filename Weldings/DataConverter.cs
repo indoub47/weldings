@@ -23,67 +23,74 @@ namespace Weldings
                 int kelias, km;
                 int? pk, m, siule;
 
-                string kur = "Operatorius " + operatorius + ", pirmieji tikrinimai: ";
+                object obLinija = row[Array.IndexOf(mapping, "Linia")];
+                object obKelias = row[Array.IndexOf(mapping, "Kel")];
+                object obKm = row[Array.IndexOf(mapping, "kilomrtras")];
+                object obPk = row[Array.IndexOf(mapping, "piket")];
+                object obM = row[Array.IndexOf(mapping, "metras")];
+                object obSiule = row[Array.IndexOf(mapping, "siule")];
 
-                value = row[Array.IndexOf(mapping, "Linia")];
-                if (value == null || value.ToString().Trim() == string.Empty)
+                string kur = "Operatorius " + operatorius + ", pirmieji tikrinimai, " + dataRowToVietosKodas(obLinija, obKelias, obKm, obPk, obM, obSiule) + ": ";
+
+                if (obLinija == null || obLinija.ToString().Trim() == string.Empty)
                     throw new Exception(kur + "neįrašytas laukas XX.yyyy.yy.yy.y.");
                 else
-                    linija = value.ToString().Trim();
+                    linija = obLinija.ToString().Trim();
 
-                value = row[Array.IndexOf(mapping, "Kel")];
                 try
                 {
-                    kelias = Convert.ToInt32(value);
+                    kelias = Convert.ToInt32(obKelias);
                 }
                 catch
                 {
                     throw new Exception(kur + "neįrašytas arba įrašytas ne skaičiais laukas yy.Xyyy.yy.yy.y.");
                 }
 
-                value = row[Array.IndexOf(mapping, "kilomrtras")];
                 try
                 {
-                    km = Convert.ToInt32(value);
+                    km = Convert.ToInt32(obKm);
                 }
                 catch
                 {
                     throw new Exception(kur + "neįrašytas arba įrašytas ne skaičiais laukas yy.yXXX.yy.yy.y.");
                 }
 
-                value = row[Array.IndexOf(mapping, "piket")];
-                if (value == null || value.ToString().Trim() == string.Empty)
+                if (obPk == null || obPk.ToString().Trim() == string.Empty)
+                {
                     pk = null;
+                }
                 else
                     try
                     {
-                        pk = Convert.ToInt32(value);
+                        pk = Convert.ToInt32(obPk);
                     }
                     catch
                     {
                         throw new Exception(kur + "ne skaičiais įrašytas laukas yy.yyyy.XX.yy.y.");
                     }
 
-                value = row[Array.IndexOf(mapping, "metras")];
-                if (value == null || value.ToString().Trim() == string.Empty)
+                if (obM == null || obM.ToString().Trim() == string.Empty)
+                {
                     m = null;
+                }
                 else
                     try
                     {
-                        m = Convert.ToInt32(value);
+                        m = Convert.ToInt32(obM);
                     }
                     catch
                     {
                         throw new Exception(kur + "ne skaičiais įrašytas laukas yy.yyyy.yy.XX.y.");
                     }
 
-                value = row[Array.IndexOf(mapping, "siule")];
-                if (value == null || value.ToString().Trim() == string.Empty)
+                if (obSiule == null || obSiule.ToString().Trim() == string.Empty)
+                {
                     siule = null;
+                }
                 else
                     try
                     {
-                        siule = Convert.ToInt32(value);
+                        siule = Convert.ToInt32(obSiule);
                     }
                     catch
                     {
@@ -137,6 +144,11 @@ namespace Weldings
             return tikrinimaiList;
         }
 
+        private static string dataRowToVietosKodas(object obLinija, object obKelias, object obKm, object obPk, object obM, object obSiule)
+        {
+            return string.Format("{0}.{1:0}{2:000}.{3:#00}.{4:#00}.{5:##0}", obLinija, obKelias, obKm, obPk, obM, obSiule);
+        }
+
         internal static List<WeldingInspection> ConvertNepirmieji(List<IList<Object>> data, string[] mapping, string operatorius)
         {
             List<WeldingInspection> tikrinimaiList = new List<WeldingInspection>();
@@ -160,8 +172,11 @@ namespace Weldings
                 }
                 catch
                 {
-                    throw new Exception(kur + "neįrašytas arba įrašytas ne skaičiais id.");
+                    throw new Exception(kur + "suvirinimo id neįrašytas arba įrašytas ne skaičiais.");
                 }
+
+                // kur pataisomas, pridedant id - kad būtų lengva rasti
+                kur = "Operatorius " + operatorius + ", nepirmieji tikrinimai, id " + id.ToString() + ": ";
 
                 value = row[Array.IndexOf(mapping, "Linia")];
                 if (value == null || value.ToString().Trim() == string.Empty)
@@ -275,6 +290,8 @@ namespace Weldings
             return tikrinimaiList;
         }
 
+
+        /*
         internal static List<WeldingInspection> ReadPirmiejiCsv(string CsvPath, string[] delims)
         {
             List<WeldingInspection> tikrinimaiList = new List<WeldingInspection>();
@@ -382,5 +399,6 @@ namespace Weldings
             }
             return tikrinimaiList;
         }
+        */
     }
 }
