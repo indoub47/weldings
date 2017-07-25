@@ -13,8 +13,13 @@ using System.Threading;
 
 namespace Weldings
 {
-    internal static class Controller
+    internal static class Controller1
     {
+        // Fetch data from Google Sheets
+        // Try to convert it to WeldingInspections
+        // Verify
+        // Inform user about problems
+
         private delegate List<WeldingInspection> ConvertDataToListMethod(List<IList<Object>> data, string[] mapping, string operId);
         private delegate StringBuilder VerifyObjectsMethod(List<WeldingInspection> inspectionList);
         private delegate int DbUpdateMethod(List<WeldingInspection> inspectionList);
@@ -51,26 +56,6 @@ namespace Weldings
             }
             return sb;
         }
-
-
-        // vieno operatoriaus GS lentelės duomenis - updateina DB
-        private static int updateDb(List<WeldingInspection> inspections, DbUpdateMethod updateMethod)
-        {
-            int updateCount = 0;
-            try
-            {
-                updateCount = updateMethod(inspections);
-                allInspections.Concat(inspections);
-            }
-            catch
-            {
-                return 0;
-            }
-            return updateCount;
-        }
-
-        
-
 
     }
 }

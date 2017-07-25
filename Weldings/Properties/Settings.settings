@@ -41,5 +41,11 @@
     <Setting Name="DBBackupFilenameFormat" Type="System.String" Scope="User">
       <Value Profile="(Default)">db_backup {0:yyyy-MM-dd H-mm-ss}</Value>
     </Setting>
+    <Setting Name="CheckDateIfReal" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AllowedDayCount" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">14</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

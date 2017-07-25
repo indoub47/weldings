@@ -12,36 +12,23 @@ namespace Weldings
 {
     internal static class GSheetsUpdater
     {
-        internal static void UpdateAllSpreadSheets(Spreadsheets allSpreadsheetsData, string dateFormat, SheetsService service)
-        {
-            // TODO: padaryti, kad būtų galima kontroliuoti ir informuoti, ar visi operatoriai sutvarkyti
-            Spreadsheets.SheetsRanges allRanges = SpreadsheetsData.AllRanges;
-            foreach (Spreadsheets.Operator oper in allSpreadsheetsData.Operators)
-            {
-                UpdateSingleSpreadsheet(oper.SpreadsheetId, allRanges, service);
-            }
-        }
-
-
-        private static BatchUpdateValuesResponse UpdateSingleSpreadsheet(string spreadsheetId, Spreadsheets.SheetsRanges allRanges, SheetsService service)
+        internal static BatchUpdateValuesResponse BatchUpdateSheet(string spreadsheetId, Spreadsheets.SheetsRanges.SheetRangeData rangeData, SheetsService service)
         {
             // gaunami duomenys iš sheetų
-            IList<IList<Object>> pirmiejiValues = getRangeValues(spreadsheetId, allRanges.Pirmieji.RangeAddress, service);
-            IList<IList<Object>> nepirmiejiValues = getRangeValues(spreadsheetId, allRanges.Nepirmieji.RangeAddress, service);
+            IList<IList<Object>> sheetValues = getRangeValues(spreadsheetId, rangeData.RangeAddress, service);
 
             List<ValueRange> requestData = new List<ValueRange>();
             string dateFormat = Properties.Settings.Default.DateFormat;
             object valueToWrite = DateTime.Now.Date.ToString(dateFormat);
 
             // pridedami duomenys į requestData
-            addDataToRequest(pirmiejiValues, allRanges.Pirmieji, valueToWrite, requestData);
-            addDataToRequest(nepirmiejiValues, allRanges.Nepirmieji, valueToWrite, requestData);
+            addDataToRequest(sheetValues, rangeData, valueToWrite, requestData);
 
             // sukuriamas batch update request
             BatchUpdateValuesRequest request = getUpdateValuesRequest(requestData);
 
             // updateinamas spreadsheet
-            return updateSpreadsheet(request, spreadsheetId, service);
+            return updateSheet(request, spreadsheetId, service);
         }
 
 
@@ -83,7 +70,7 @@ namespace Weldings
             }
         }
 
-        private static BatchUpdateValuesResponse updateSpreadsheet(BatchUpdateValuesRequest request, string spreadsheetId, SheetsService service)
+        private static BatchUpdateValuesResponse updateSheet(BatchUpdateValuesRequest request, string spreadsheetId, SheetsService service)
         {
             return service.Spreadsheets.Values.BatchUpdate(request, spreadsheetId).Execute();
         }

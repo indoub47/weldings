@@ -69,7 +69,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controller.cs" />
+    <Compile Include="Controller2.cs" />
+    <Compile Include="Controller1.cs" />
     <Compile Include="DbBackupCreator.cs" />
     <Compile Include="DBUpdater.cs" />
     <Compile Include="GSheetsUpdater.cs" />

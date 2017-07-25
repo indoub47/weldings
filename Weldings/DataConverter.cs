@@ -125,6 +125,11 @@ namespace Weldings
                     throw new Exception(kur + "nenurodyta arba nesuprantama data.");
                 }
 
+                if (Properties.Settings.Default.CheckDateIfReal && isNotReal(tikrinimoData))
+                {
+                    throw new Exception(kur + string.Format("tikrinimo data {0:yyyy-MM-dd} neatrodo reali."));
+                }
+
                 WeldingInspection wi = new WeldingInspection(
                         linija, // linija
                         kelias, // kelias
@@ -142,11 +147,6 @@ namespace Weldings
                 tikrinimaiList.Add(wi);
             }
             return tikrinimaiList;
-        }
-
-        private static string dataRowToVietosKodas(object obLinija, object obKelias, object obKm, object obPk, object obM, object obSiule)
-        {
-            return string.Format("{0}.{1:0}{2:000}.{3:#00}.{4:#00}.{5:##0}", obLinija, obKelias, obKm, obPk, obM, obSiule);
         }
 
         internal static List<WeldingInspection> ConvertNepirmieji(List<IList<Object>> data, string[] mapping, string operatorius)
@@ -265,6 +265,11 @@ namespace Weldings
                     throw new Exception(kur + "nenurodyta arba nesuprantama data.");
                 }
 
+                if (Properties.Settings.Default.CheckDateIfReal && isNotReal(tikrinimoData))
+                {
+                    throw new Exception(kur + string.Format("tikrinimo data {0:yyyy-MM-dd} neatrodo reali."));
+                }
+
                 value = row[Array.IndexOf(mapping, "kelintas_tikrinimas")];
                 if (value == null || value.ToString().Trim() == string.Empty)
                     throw new Exception(kur + "nenurodyta, kelintas tikrinimas.");
@@ -288,6 +293,17 @@ namespace Weldings
                 tikrinimaiList.Add(wi);
             }
             return tikrinimaiList;
+        }
+
+        private static bool isNotReal(DateTime tikrinimoData)
+        {
+            return (tikrinimoData > DateTime.Now) ||
+                (tikrinimoData < DateTime.Now.AddDays(-Properties.Settings.Default.AllowedDayCount));
+        }
+
+        private static string dataRowToVietosKodas(object obLinija, object obKelias, object obKm, object obPk, object obM, object obSiule)
+        {
+            return string.Format("{0}.{1:0}{2:000}.{3:#00}.{4:#00}.{5:##0}", obLinija, obKelias, obKm, obPk, obM, obSiule);
         }
 
 

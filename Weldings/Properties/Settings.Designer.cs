@@ -178,5 +178,29 @@ namespace Weldings.Properties {
                 this["DBBackupFilenameFormat"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CheckDateIfReal {
+            get {
+                return ((bool)(this["CheckDateIfReal"]));
+            }
+            set {
+                this["CheckDateIfReal"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("14")]
+        public float AllowedDayCount {
+            get {
+                return ((float)(this["AllowedDayCount"]));
+            }
+            set {
+                this["AllowedDayCount"] = value;
+            }
+        }
     }
 }
