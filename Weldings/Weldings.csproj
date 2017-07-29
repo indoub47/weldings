@@ -76,6 +76,7 @@
     <Compile Include="GSheetsUpdater.cs" />
     <Compile Include="ObjectVerifier.cs" />
     <Compile Include="GSheetsConnector.cs" />
+    <Compile Include="RepeatFinder.cs" />
     <Compile Include="ReportCreator.cs" />
     <Compile Include="SheetDataFetcher.cs" />
     <Compile Include="DataConverter.cs" />

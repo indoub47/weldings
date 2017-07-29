@@ -118,87 +118,94 @@ namespace Weldings
             List<string> errors = new List<string>();
             using (OleDbDataReader reader = cmd.ExecuteReader())
             {
-                if (reader.Read())
-                {
-                    if (reader["Linia"].ToString() != wi.Linija)
-                    {
-                        errors.Add(string.Format("{0} - neatitinka vietos kodas (Linia).", wi.Id));
-                    }
-
-                    if (Convert.ToInt32(reader["Kel"]) != wi.Kelias)
-                    {
-                        errors.Add(string.Format("{0} - neatitinka vietos kodas (Kel).", wi.Id));
-                    }
-
-                    if (Convert.ToInt32(reader["kilomrtras"]) != wi.Km)
-                    {
-                        errors.Add(string.Format("{0} - neatitinka vietos kodas (kilomrtras).", wi.Id));
-                    }
-
-                    if (intFieldAndPropNotEq(reader["piket"], wi.Pk))
-                    {
-                        errors.Add(string.Format("{0} - neatitinka vietos kodas (piket).", wi.Id));
-                    }
-
-                    if (intFieldAndPropNotEq(reader["metras"], wi.M))
-                    {
-                        errors.Add(string.Format("{0} - neatitinka vietos kodas (metras).", wi.Id));
-                    }
-
-                    if (intFieldAndPropNotEq(reader["siule"], wi.Siule))
-                    {
-                        errors.Add(string.Format("{0} - neatitinka vietos kodas (siule).", wi.Id));
-                    }
-
-                    if (reader["saliginis kodas"].ToString() != wi.SalygKodas) // nereikia tikrinti null,  nes db yra privalomas
-                    {
-                        errors.Add(string.Format("{0} - DB esantis sąlyginis kodas {1} neatitinka siūlomo sąlyginio kodo {2}.",
-                            wi.Id, reader["saliginis kodas"], wi.SalygKodas));
-                    }
-
-                    if (wi.KelintasTikrinimas != Kelintas.papildomas)
-                    {
-                        string patDataField = "", formerPatDataField = "";
-                        switch (wi.KelintasTikrinimas)
-                        {
-                            case Kelintas.II:
-                                patDataField = "II_pat_data";
-                                formerPatDataField = "I_pat_data";
-                                break;
-                            case Kelintas.III:
-                                patDataField = "III_pat_data";
-                                formerPatDataField = "II_pat_data";
-                                break;
-                            case Kelintas.IV:
-                                patDataField = "IV_pat_data";
-                                formerPatDataField = "III_pat_data";
-                                break;
-                        }
-
-                        // patDataField turi būti tuščias
-                        if (reader[patDataField] != null && reader[patDataField].ToString() != string.Empty)
-                        {
-                            errors.Add(string.Format("{0} - {1} tikrinimas jau atliktas.", wi.Id, wi.KelintasTikrinimas));
-                        }
-                        // formerPatDataField turi būti netuščias
-                        else if (reader[formerPatDataField] == null || reader[formerPatDataField].ToString() == string.Empty)
-                        {
-                            errors.Add(string.Format("{0} - neatliktas ankstesnis patikrinimas {1}", wi.Id, formerPatDataField));
-                        }
-                        // formerPatDataField turi būti ankstesnis už wi.Data
-                        else if (Convert.ToDateTime(reader[formerPatDataField]) > wi.TikrinimoData)
-                        {
-                            errors.Add(string.Format("{0} - ankstesnis patikrinimas {1} atliktas vėliau ({2:d}) negu dabar siūlomas {3} ({4:d}).",
-                                wi.Id, formerPatDataField, reader[formerPatDataField], patDataField, wi.TikrinimoData));
-                        }
-                    }
-                }
-                else
-                {
-                    errors.Add(string.Format("{0} - įrašas nerastas DB", wi.Id));
-                }
+                verifyRecord(wi, errors, reader);
             }
             return errors;
+        }
+
+
+        // reader - IReadable, IIndexable
+        private static void verifyRecord(WeldingInspection wi, List<string> errors, OleDbDataReader reader)
+        {
+            if (reader.Read())
+            {
+                if (reader["Linia"].ToString() != wi.Linija)
+                {
+                    errors.Add(string.Format("{0} - neatitinka vietos kodas (Linia).", wi.Id));
+                }
+
+                if (Convert.ToInt32(reader["Kel"]) != wi.Kelias)
+                {
+                    errors.Add(string.Format("{0} - neatitinka vietos kodas (Kel).", wi.Id));
+                }
+
+                if (Convert.ToInt32(reader["kilomrtras"]) != wi.Km)
+                {
+                    errors.Add(string.Format("{0} - neatitinka vietos kodas (kilomrtras).", wi.Id));
+                }
+
+                if (intFieldAndPropNotEq(reader["piket"], wi.Pk))
+                {
+                    errors.Add(string.Format("{0} - neatitinka vietos kodas (piket).", wi.Id));
+                }
+
+                if (intFieldAndPropNotEq(reader["metras"], wi.M))
+                {
+                    errors.Add(string.Format("{0} - neatitinka vietos kodas (metras).", wi.Id));
+                }
+
+                if (intFieldAndPropNotEq(reader["siule"], wi.Siule))
+                {
+                    errors.Add(string.Format("{0} - neatitinka vietos kodas (siule).", wi.Id));
+                }
+
+                if (reader["saliginis kodas"].ToString() != wi.SalygKodas) // nereikia tikrinti null,  nes db yra privalomas
+                {
+                    errors.Add(string.Format("{0} - DB esantis sąlyginis kodas {1} neatitinka siūlomo sąlyginio kodo {2}.",
+                        wi.Id, reader["saliginis kodas"], wi.SalygKodas));
+                }
+
+                if (wi.KelintasTikrinimas != Kelintas.papildomas)
+                {
+                    string patDataField = "", formerPatDataField = "";
+                    switch (wi.KelintasTikrinimas)
+                    {
+                        case Kelintas.II:
+                            patDataField = "II_pat_data";
+                            formerPatDataField = "I_pat_data";
+                            break;
+                        case Kelintas.III:
+                            patDataField = "III_pat_data";
+                            formerPatDataField = "II_pat_data";
+                            break;
+                        case Kelintas.IV:
+                            patDataField = "IV_pat_data";
+                            formerPatDataField = "III_pat_data";
+                            break;
+                    }
+
+                    // patDataField turi būti tuščias
+                    if (reader[patDataField] != null && reader[patDataField].ToString() != string.Empty)
+                    {
+                        errors.Add(string.Format("{0} - {1} tikrinimas jau atliktas.", wi.Id, wi.KelintasTikrinimas));
+                    }
+                    // formerPatDataField turi būti netuščias
+                    else if (reader[formerPatDataField] == null || reader[formerPatDataField].ToString() == string.Empty)
+                    {
+                        errors.Add(string.Format("{0} - neatliktas ankstesnis patikrinimas {1}", wi.Id, formerPatDataField));
+                    }
+                    // formerPatDataField turi būti ankstesnis už wi.Data
+                    else if (Convert.ToDateTime(reader[formerPatDataField]) > wi.TikrinimoData)
+                    {
+                        errors.Add(string.Format("{0} - ankstesnis patikrinimas {1} atliktas vėliau ({2:d}) negu dabar siūlomas {3} ({4:d}).",
+                            wi.Id, formerPatDataField, reader[formerPatDataField], patDataField, wi.TikrinimoData));
+                    }
+                }
+            }
+            else
+            {
+                errors.Add(string.Format("{0} - įrašas nerastas DB", wi.Id));
+            }
         }
 
         private static bool intFieldAndPropNotEq (object field, int? propertyValue)

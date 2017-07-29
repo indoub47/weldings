@@ -20,17 +20,11 @@
     <Setting Name="AccessDbPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Users\pc\Documents\Visual Studio 2017\Projects\Weldings\DB\Def2010-IF4.mdb</Value>
     </Setting>
-    <Setting Name="DataVerifyOutputFilePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\pc\Desktop\DataVerifyErrors.txt</Value>
-    </Setting>
     <Setting Name="ApplicationName" Type="System.String" Scope="User">
       <Value Profile="(Default)">Google Sheets API .NET</Value>
     </Setting>
     <Setting Name="SpreadsheetsJsonFilePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">./data/spreadsheets.json</Value>
-    </Setting>
-    <Setting Name="StartRow" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="DateFormat" Type="System.String" Scope="User">
       <Value Profile="(Default)">yyyy-MM-dd</Value>
@@ -46,6 +40,15 @@
     </Setting>
     <Setting Name="AllowedDayCount" Type="System.Single" Scope="User">
       <Value Profile="(Default)">14</Value>
+    </Setting>
+    <Setting Name="DataVerifyFileNameFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">data_verify {0:yyyy-MM-dd H-mm-ss}</Value>
+    </Setting>
+    <Setting Name="DbUpdateResultFileNameFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">db_update {0:yyyy-MM-dd H-mm-ss}</Value>
+    </Setting>
+    <Setting Name="SpreadsheetsJsonPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">./data/Spreadsheets.json</Value>
     </Setting>
   </Settings>
 </SettingsFile>

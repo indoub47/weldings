@@ -114,6 +114,16 @@ namespace Weldings
                 return string.Format("{0}.{1:0}{2:000}.{3:#00}.{4:#00}.{5:##0}", Linija, Kelias, Km, Pk, M, Siule);
             }
         }
+
+        internal bool SameVietaAs(WeldingInspection other)
+        {
+            return Linija == other.Linija &&
+                Kelias == other.Kelias &&
+                Km == other.Km &&
+                Pk == other.Pk &&
+                M == other.M &&
+                Siule == other.Siule;
+        }
     }
 
 

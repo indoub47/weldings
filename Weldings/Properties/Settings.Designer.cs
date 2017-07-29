@@ -97,18 +97,6 @@ namespace Weldings.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\pc\\Desktop\\DataVerifyErrors.txt")]
-        public string DataVerifyOutputFilePath {
-            get {
-                return ((string)(this["DataVerifyOutputFilePath"]));
-            }
-            set {
-                this["DataVerifyOutputFilePath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Google Sheets API .NET")]
         public string ApplicationName {
             get {
@@ -128,18 +116,6 @@ namespace Weldings.Properties {
             }
             set {
                 this["SpreadsheetsJsonFilePath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
-        public int StartRow {
-            get {
-                return ((int)(this["StartRow"]));
-            }
-            set {
-                this["StartRow"] = value;
             }
         }
         
@@ -200,6 +176,42 @@ namespace Weldings.Properties {
             }
             set {
                 this["AllowedDayCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("data_verify {0:yyyy-MM-dd H-mm-ss}")]
+        public string DataVerifyFileNameFormat {
+            get {
+                return ((string)(this["DataVerifyFileNameFormat"]));
+            }
+            set {
+                this["DataVerifyFileNameFormat"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("db_update {0:yyyy-MM-dd H-mm-ss}")]
+        public string DbUpdateResultFileNameFormat {
+            get {
+                return ((string)(this["DbUpdateResultFileNameFormat"]));
+            }
+            set {
+                this["DbUpdateResultFileNameFormat"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("./data/Spreadsheets.json")]
+        public string SpreadsheetsJsonPath {
+            get {
+                return ((string)(this["SpreadsheetsJsonPath"]));
+            }
+            set {
+                this["SpreadsheetsJsonPath"] = value;
             }
         }
     }

@@ -24,7 +24,7 @@ namespace Weldings
         private delegate StringBuilder VerifyObjectsMethod(List<WeldingInspection> inspectionList);
         private delegate int DbUpdateMethod(List<WeldingInspection> inspectionList);
 
-        // kaupiami visi patikrinimai reportui
+        // kaupiami visi patikrinimai tam, kad b8t7 galima pagauti, jeigu tą patį suvirinimą tikrina du kartus
         private static List<WeldingInspection> allInspections = new List<WeldingInspection>();
 
         // vieno operatoriaus vienos GS lentelės duomenis - fetchina, paverčia WeldingInspection ir patikrina
@@ -34,7 +34,8 @@ namespace Weldings
         {
             List<IList<Object>> data = SheetDataFetcher.Fetch(operatorData.SpreadsheetId, rangeData.RangeAddress, rangeData.FilterColumn.Index, service).ToList();
             List<WeldingInspection> inspectionList = convertMethod(data, rangeData.FieldMappings, operatorData.OperatorId);
-            return verifyMethod(inspectionList);
+            allInspections.Concat(inspectionList); // vėlesniam pasikartojimų tikrinimui
+            return verifyMethod(inspectionList); // returns a StringBuilder
         }
 
         private static StringBuilder fetchConvertVerifySpreadsheet(SheetsService service, Spreadsheets.Operator operatorData, Spreadsheets.SheetsRanges allRanges)
@@ -45,17 +46,38 @@ namespace Weldings
             return sb.AppendLine("Pirmieji").Append(pirmiejiProblems).AppendLine("Nepirmieji").Append(nepirmiejiProblems);
         }
 
-        internal static StringBuilder fetchConvertVerify(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges)
+        internal static StringBuilder FetchConvertVerify(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges)
         {
             StringBuilder sb = new StringBuilder(DateTime.Now.ToShortDateString()).Append(", ").AppendLine(DateTime.Now.ToShortTimeString());
+
             foreach (Spreadsheets.Operator operatorData in operators)
             {
                 StringBuilder operatorProblems = fetchConvertVerifySpreadsheet(service, operatorData, allRanges);
                 sb.Append(operatorProblems);
                 sb.AppendLine();
             }
+
+            List<RepeatFinder.Repeats> repeatsList = RepeatFinder.FindRepeats(allInspections);
+            foreach (RepeatFinder.Repeats repeats in repeatsList)
+            {
+                sb.AppendLine("Kartojasi suvirinimas " + getRepeatsLine(repeats));
+            }
+
             return sb;
         }
 
+        private static string getRepeatsLine(RepeatFinder.Repeats repeats)
+        {
+            string line = repeats.VietosKodas + ": ";
+            foreach (RepeatFinder.Repeats.Rep rep in repeats.RepList)
+            {
+                line += string.Format("{0}-{1}", rep.OperatorId, rep.Times);
+                if (rep != repeats.RepList.Last())
+                {
+                    line += ", ";
+                }
+            }
+            return line;
+        }
     }
 }
