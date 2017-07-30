@@ -57,27 +57,10 @@ namespace Weldings
                 sb.AppendLine();
             }
 
-            List<RepeatFinder.Repeats> repeatsList = RepeatFinder.FindRepeats(allInspections);
-            foreach (RepeatFinder.Repeats repeats in repeatsList)
-            {
-                sb.AppendLine("Kartojasi suvirinimas " + getRepeatsLine(repeats));
-            }
-
+            StringBuilder repSb = RepeatFinder.FindRepeats(allInspections);
+            sb.AppendLine().AppendLine("Pasikartojantys suvirinimai:");
+            sb.Append(repSb);
             return sb;
-        }
-
-        private static string getRepeatsLine(RepeatFinder.Repeats repeats)
-        {
-            string line = repeats.VietosKodas + ": ";
-            foreach (RepeatFinder.Repeats.Rep rep in repeats.RepList)
-            {
-                line += string.Format("{0}-{1}", rep.OperatorId, rep.Times);
-                if (rep != repeats.RepList.Last())
-                {
-                    line += ", ";
-                }
-            }
-            return line;
         }
     }
 }
