@@ -13,8 +13,6 @@ namespace Weldings
     {
         internal static int DoPirmieji(List<WeldingInspection> wiList)
         {
-            //string[] stringSeparators = new string[] { "\t" };
-            //List<WeldingInspection> wiList = DataConverter.ReadPirmiejiCsv(Properties.Settings.Default.PirmiejiSuvirinimaiFile, stringSeparators);
             int count=0;
             using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
             {
@@ -27,45 +25,6 @@ namespace Weldings
                     trans = conn.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
                     cmd.Transaction = trans;
                     count = InsertPirmieji(wiList, cmd);
-                    trans.Commit();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                    try
-                    {
-                        // Attempt to roll back the transaction.
-                        trans.Rollback();
-                    }
-                    catch
-                    {
-                        // Do nothing here; transaction is not active.
-                    }
-                    finally
-                    {
-                        count = -1;
-                    }
-                }
-            }
-            return count;
-        }
-
-        internal static int DoNepirmieji(List<WeldingInspection> wiList)
-        {
-            //string[] stringSeparators = new string[] { "\t" };
-            //List<WeldingInspection> wiList = DataConverter.ReadNepirmiejiCsv(Properties.Settings.Default.NepirmiejiSuvirinimaiFile, stringSeparators);
-            int count = 0;
-            using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
-            {
-                OleDbTransaction trans = null;
-                OleDbCommand cmd = new OleDbCommand();
-                cmd.Connection = conn;
-                try
-                {
-                    conn.Open();
-                    trans = conn.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
-                    cmd.Transaction = trans;
-                    count = UpdateNepirmieji(wiList, cmd);
                     trans.Commit();
                 }
                 catch (Exception ex)
@@ -120,6 +79,40 @@ namespace Weldings
             }
             return count; 
         }
+        
+
+        internal static int DoNepirmieji(List<WeldingInspection> wiList)
+        {
+            int count = 0;
+            using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
+            {
+                OleDbTransaction trans = null;
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = conn;
+                try
+                {
+                    conn.Open();
+                    trans = conn.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+                    cmd.Transaction = trans;
+                    count = UpdateNepirmieji(wiList, cmd);
+                    trans.Commit();
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        // Attempt to roll back the transaction.
+                        trans.Rollback();
+                        throw new Exception("Transaction rolled back.", ex);
+                    }
+                    catch
+                    {
+                        throw new Exception("Transaction didn't rolled back. ", ex);
+                    }
+                }
+            }
+            return count;
+        }
 
         private static int UpdateNepirmieji(List<WeldingInspection> inspectionList, OleDbCommand cmd)
         {
@@ -128,10 +121,10 @@ namespace Weldings
             if (inspectionList.Count == 0) return count;
             foreach (WeldingInspection wi in inspectionList)
             {
+                cmd.Parameters.Clear();
                 if (wi.KelintasTikrinimas == Kelintas.papildomas)
                 {
                     cmd.CommandText = "UPDATE ssd SET Pastaba = Pastaba + \"" + wi.Pastaba + "\";";
-                    cmd.Parameters.Clear();
                 }
                 else
                 {
@@ -145,7 +138,7 @@ namespace Weldings
                         case Kelintas.III:
                             patData = "III_pat_data";
                             aparat = "III_pat_aparat";
-                            operatorius = "III_pat_operator";
+                            operatorius = "III_pat_operacqtor";
                             break;
                         case Kelintas.IV:
                             patData = "IV_pat_data";
@@ -154,9 +147,12 @@ namespace Weldings
                             break;
                     }
 
-                    cmd.CommandText = "UPDATE ssd SET " + patData + " = @patData, " + aparat + " = @aparat, " + operatorius + " = @operator WHERE number = @id;";
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@pat_data", wi.TikrinimoData);
+                    cmd.CommandText = "UPDATE ssd SET " + 
+                        patData + " = @patdata, " + 
+                        aparat + " = @aparat, " + 
+                        operatorius + " = @operator WHERE number = @id";
+
+                    cmd.Parameters.AddWithValue("@patdata", wi.TikrinimoData);
                     cmd.Parameters.AddWithValue("@aparat", wi.Aparatas);
                     cmd.Parameters.AddWithValue("@operator", wi.Operatorius);
                     cmd.Parameters.AddWithValue("@id", wi.Id);

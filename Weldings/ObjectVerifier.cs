@@ -14,24 +14,20 @@ namespace Weldings
 
         internal static StringBuilder VerifyPirmieji(List<WeldingInspection> wiList)
         {
-            // StringBuilder errors = new StringBuilder(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-            // errors.AppendLine().AppendLine("Suvirinimų pirmųjų patikrinimų problemos").AppendLine();
-
-            // antrašte pasirūpina klientas, nes kitaip gaunasi labai užšikta ataskaita
             StringBuilder errors = new StringBuilder();
             using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
             {
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = conn;
-                //try
-                //{
+                try
+                {
                     conn.Open();
                     foreach (WeldingInspection wi in wiList)
                     {
                         List<long> samePlaceIds = VerifyByVieta(wi, cmd);
                         if (samePlaceIds.Count > 0)
                         {
-                            errors.AppendFormat("{0}.{1}{2:000}.{3}.{4}.{5} - tą patį vietos kodą turi DB įrašai {6}",
+                            errors.AppendFormat("{0}.{1}{2:000}.{3}.{4}.{5} - tą patį vietos kodą turi DB įrašas (-ai) {6}",
                                 wi.Linija,
                                 wi.Kelias,
                                 wi.Km,
@@ -42,29 +38,25 @@ namespace Weldings
                             errors.AppendLine().AppendLine();
                         }
                     }
-                //}
-               // catch
-                //{
-                    // do nothing for debugging
-                //}
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "ObjectVerifier.VerifyPirmieji Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 return errors;
             }
         }
 
         internal static StringBuilder VerifyNepirmieji(List<WeldingInspection> wiList)
         {
-            //StringBuilder errors = new StringBuilder(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-            //errors.AppendLine().AppendLine("Suvirinimų nepirmųjų patikrinimų problemos").AppendLine();
-
-            // antrašte pasirūpina klientas, nes kitaip gaunasi labai užšikta ataskaita
             StringBuilder errors = new StringBuilder();
             List <string> problems = new List<string>();
             using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
             {
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = conn;
-                //try
-                //{
+                try
+                {
                     conn.Open();
                     foreach (WeldingInspection wi in wiList)
                     {
@@ -75,11 +67,11 @@ namespace Weldings
                             errors.AppendLine().AppendLine();
                         }
                     }
-                //}
-               // catch (Exception ex)
-                //{
-                //    MessageBox.Show(ex.Message);
-                //}
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "ObjectVerifier.VerifyNepirmieji Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 return errors;
             }
         }
@@ -144,17 +136,17 @@ namespace Weldings
                     errors.Add(string.Format("{0} - neatitinka vietos kodas (kilomrtras).", wi.Id));
                 }
 
-                if (intFieldAndPropNotEq(reader["piket"], wi.Pk))
+                if (intFieldNotEqProp(reader["piket"], wi.Pk))
                 {
                     errors.Add(string.Format("{0} - neatitinka vietos kodas (piket).", wi.Id));
                 }
 
-                if (intFieldAndPropNotEq(reader["metras"], wi.M))
+                if (intFieldNotEqProp(reader["metras"], wi.M))
                 {
                     errors.Add(string.Format("{0} - neatitinka vietos kodas (metras).", wi.Id));
                 }
 
-                if (intFieldAndPropNotEq(reader["siule"], wi.Siule))
+                if (intFieldNotEqProp(reader["siule"], wi.Siule))
                 {
                     errors.Add(string.Format("{0} - neatitinka vietos kodas (siule).", wi.Id));
                 }
@@ -167,16 +159,18 @@ namespace Weldings
 
                 if (wi.KelintasTikrinimas != Kelintas.papildomas)
                 {
-                    string patDataField = "", formerPatDataField = "";
+                    string patDataField = "", formerPatDataField = "", nextPatDataField = "";
                     switch (wi.KelintasTikrinimas)
                     {
                         case Kelintas.II:
                             patDataField = "II_pat_data";
                             formerPatDataField = "I_pat_data";
+                            nextPatDataField = "III_pat_data";
                             break;
                         case Kelintas.III:
                             patDataField = "III_pat_data";
                             formerPatDataField = "II_pat_data";
+                            nextPatDataField = "IV_pat_data";
                             break;
                         case Kelintas.IV:
                             patDataField = "IV_pat_data";
@@ -194,6 +188,13 @@ namespace Weldings
                     {
                         errors.Add(string.Format("{0} - neatliktas ankstesnis patikrinimas {1}", wi.Id, formerPatDataField));
                     }
+                    // nextPatDataField turi būti tuščias.
+                    // Čia būtų arba db duomenų klaida - rodytų, kad šitas tikrinimas dar neatliktas, bet atliktas vėlesnis,
+                    // arba įrašas būtų pažymėtas kaip panaikintas (tuomet surašomos visų tikrinimų fake datos), bet nepakeistas sąlyginis kodas į x.6?
+                    else if (nextPatDataField != "" && reader[nextPatDataField] != null && reader[nextPatDataField].ToString() != string.Empty)
+                    {
+                        errors.Add(string.Format("{0} - įrašyta, kad jau atliktas vėlesnis patikrinimas {1}", wi.Id, nextPatDataField));
+                    }
                     // formerPatDataField turi būti ankstesnis už wi.Data
                     else if (Convert.ToDateTime(reader[formerPatDataField]) > wi.TikrinimoData)
                     {
@@ -208,7 +209,7 @@ namespace Weldings
             }
         }
 
-        private static bool intFieldAndPropNotEq (object field, int? propertyValue)
+        private static bool intFieldNotEqProp (object field, int? propertyValue)
         {
             // tikrina ar iš duomenų bazės partempto reader laukas ir WeldingInspection objekto property yra nelygūs
             if (field == DBNull.Value) return (propertyValue != null);

@@ -39,13 +39,21 @@ namespace Weldings
 
             txbDbPath.Text = Settings.Default.AccessDbPath;
             txbOutputFolder.Text = Settings.Default.OutputPath;
-
-            // check if output folder exists
-            // check if dbfile exists
         }
 
         private void btnVerifyData_Click(object sender, EventArgs e)
         {
+            try
+            {
+                checkOutputFolder();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Cannot create the output folder \"" + Settings.Default.OutputPath + "\". Try to create it manually.\n\n" + ex.Message ,
+                    "StartForm.btnVerifyDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             SheetsService service = GSheetsConnector.Connect();
             Spreadsheets.Operator[] operators = SpreadsheetsData.Operators;
             Spreadsheets.SheetsRanges allRanges = SpreadsheetsData.AllRanges;
@@ -61,11 +69,12 @@ namespace Weldings
             {
                 try
                 {
-                    sw.Write(Controller1.FetchConvertVerify(service, operators, allRanges));
+                    StringBuilder sb = Controller1.FetchConvertVerify(service, operators, allRanges);
+                    sw.Write(sb);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Klaida", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "StartForm.btnVerifyDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 finally
@@ -73,17 +82,86 @@ namespace Weldings
                     service.Dispose();
                 }
             }
-            MessageBox.Show("Done.\nDabar bus atidarytas failas su išvardintomis problemomis.");
-            Process.Start(outputFileName);           
+            MessageBox.Show("Atlikta.\nDabar bus atidarytas failas su išvardintomis problemomis.", 
+                "Task accomplished", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Process.Start(outputFileName);
+            btnWriteData.Enabled = true;
         }
 
         private void btnWriteData_Click(object sender, EventArgs e)
         {
             this.btnWriteData.Enabled = false;
+
+            // check if output folder exists; if not then create it
+            try
+            {
+                checkOutputFolder();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Cannot create the output folder \"" + Settings.Default.OutputPath + "\". Try to create it manually.\n\n" + ex.Message, 
+                    "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             // create db backup
+            string dbBackupFileName = Path.Combine(Settings.Default.OutputPath, string.Format(Settings.Default.DBBackupFilenameFormat, DateTime.Now));
+            try
+            {
+                File.Copy(Settings.Default.AccessDbPath, dbBackupFileName, true);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Unable to create database file copy: \n\tfrom: \"" + Settings.Default.AccessDbPath + "\"\n\tto: \"" + dbBackupFileName + "\"\n\n" + ex.Message,
+                    "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             // perform update
+            /* internal static void fetchConvertUpdate(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges) */
+            SheetsService service = GSheetsConnector.Connect();
+            Spreadsheets.Operator[] operators = SpreadsheetsData.Operators;
+            Spreadsheets.SheetsRanges allRanges = SpreadsheetsData.AllRanges;
+
+            Controller2.fetchConvertUpdate(service, operators, allRanges);
+            service.Dispose();
+
+            // write all processing to file
+            string processingInfoFileName = getOutputFileName(Settings.Default.ProcessingInfoFileNameFormat, "processing info file");
+            if (processingInfoFileName == string.Empty) return;
+            using (StreamWriter sw = new StreamWriter(processingInfoFileName))
+            {
+                try
+                {
+                    sw.Write(Controller2.GetProcessingResultInfo());
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Nepavyko įrašyti processing info failo į \"" + processingInfoFileName + "\"\n" + ex.Message,
+                        "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);                    
+                }
+            }
+
             // create report
-            // open report
+            StringBuilder sbReport = ReportCreator.CreateTxt(Controller2.GetAllProcessedInspections());
+            string reportFileName = getOutputFileName(Settings.Default.DbUpdateResultFileNameFormat, "db update result");
+            if (reportFileName == string.Empty) return;
+            using (StreamWriter sw = new StreamWriter(reportFileName))
+            {
+                try
+                {
+                    sw.Write(sbReport);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Nepavyko įrašyti db update result į \"" + reportFileName + "\"\n" + ex.Message,
+                        "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+
+            // open processing info file name
+            Process.Start(processingInfoFileName);
         }
 
         private void btnSelectDb_Click(object sender, EventArgs e)
@@ -117,7 +195,7 @@ namespace Weldings
             try
             {
                 fn = Path.Combine(Settings.Default.OutputPath,
-                string.Format(format, DateTime.Now));
+                string.Format(format, DateTime.Now) + ".txt");
             }
             catch (Exception ex)
             {
@@ -142,6 +220,14 @@ namespace Weldings
             Settings.Default.Ifas = txIFValue.Text.Trim();
             Settings.Default.Save();
             MessageBox.Show("Settings saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void checkOutputFolder()
+        {
+            if (!Directory.Exists(Settings.Default.OutputPath))
+            {
+                Directory.CreateDirectory(Settings.Default.OutputPath);
+            }
         }
     }
 }

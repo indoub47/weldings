@@ -12,7 +12,10 @@ namespace Weldings
 {
     internal static class GSheetsUpdater
     {
-        internal static BatchUpdateValuesResponse BatchUpdateSheet(string spreadsheetId, Spreadsheets.SheetsRanges.SheetRangeData rangeData, SheetsService service)
+        internal static BatchUpdateValuesResponse BatchUpdateSheet(
+            string spreadsheetId, 
+            Spreadsheets.SheetsRanges.SheetRangeData rangeData, 
+            SheetsService service)
         {
             // gaunami duomenys iš sheetų
             IList<IList<Object>> sheetValues = getRangeValues(spreadsheetId, rangeData.RangeAddress, service);
@@ -32,7 +35,10 @@ namespace Weldings
         }
 
 
-        private static IList<IList<Object>> getRangeValues(string spreadsheetId, string rangeAddress, SheetsService service)
+        private static IList<IList<Object>> getRangeValues(
+            string spreadsheetId, 
+            string rangeAddress, 
+            SheetsService service)
         {
             // gauna viso range duomenis, tam, kad sužinoti, kuriuos laukus reikia užpildyti
             SpreadsheetsResource.ValuesResource.GetRequest getRequest =
@@ -43,7 +49,10 @@ namespace Weldings
             return responseValues;
         }
 
-        private static BatchUpdateValuesRequest getUpdateValuesRequest(List<ValueRange> requestData, string valueInputOption = "USER_ENTERED")
+
+        private static BatchUpdateValuesRequest getUpdateValuesRequest(
+            List<ValueRange> requestData, 
+            string valueInputOption = "USER_ENTERED")
         {
             BatchUpdateValuesRequest requestBody = new BatchUpdateValuesRequest();
             requestBody.Data = requestData;
@@ -51,8 +60,13 @@ namespace Weldings
             return requestBody;
         }
 
-        private static void addDataToRequest(IList<IList<Object>> rangeValues, Spreadsheets.SheetsRanges.SheetRangeData sheetRangeData, object valueToWrite, List<ValueRange> requestData)
-        {           
+
+        private static void addDataToRequest(
+            IList<IList<Object>> rangeValues, 
+            Spreadsheets.SheetsRanges.SheetRangeData sheetRangeData, 
+            object valueToWrite, 
+            List<ValueRange> requestData)
+        {
             var updateValue = new List<object>() { valueToWrite };
 
             // tiems langeliams, kuriuose nėra datos, sukuria ValueRange
@@ -70,7 +84,11 @@ namespace Weldings
             }
         }
 
-        private static BatchUpdateValuesResponse updateSheet(BatchUpdateValuesRequest request, string spreadsheetId, SheetsService service)
+
+        private static BatchUpdateValuesResponse updateSheet(
+            BatchUpdateValuesRequest request, 
+            string spreadsheetId, 
+            SheetsService service)
         {
             return service.Spreadsheets.Values.BatchUpdate(request, spreadsheetId).Execute();
         }

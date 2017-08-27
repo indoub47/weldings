@@ -30,19 +30,41 @@ namespace Weldings
         // vieno operatoriaus vienos GS lentelės duomenis - fetchina, paverčia WeldingInspection ir patikrina
         private static StringBuilder fetchConvertVerifySheet(SheetsService service, 
             Spreadsheets.Operator operatorData, // lemia, katro operatoriaus spreadsheet
-            Spreadsheets.SheetsRanges.SheetRangeData rangeData, ConvertDataToListMethod convertMethod, VerifyObjectsMethod verifyMethod) // lemia, katrą to operatoriaus lentelę
+            Spreadsheets.SheetsRanges.SheetRangeData rangeData, // lemia, katrą to operatoriaus lentelę 
+            ConvertDataToListMethod convertMethod, // -- 
+            VerifyObjectsMethod verifyMethod) // --
         {
-            List<IList<Object>> data = SheetDataFetcher.Fetch(operatorData.SpreadsheetId, rangeData.RangeAddress, rangeData.FilterColumn.Index, service).ToList();
+            List<IList<Object>> data = SheetDataFetcher.Fetch(
+                operatorData.SpreadsheetId, 
+                rangeData.RangeAddress, 
+                rangeData.FilterColumn.Index, 
+                service).ToList();
             List<WeldingInspection> inspectionList = convertMethod(data, rangeData.FieldMappings, operatorData.OperatorId);
             allInspections.Concat(inspectionList); // vėlesniam pasikartojimų tikrinimui
             return verifyMethod(inspectionList); // returns a StringBuilder
         }
 
-        private static StringBuilder fetchConvertVerifySpreadsheet(SheetsService service, Spreadsheets.Operator operatorData, Spreadsheets.SheetsRanges allRanges)
+        private static StringBuilder fetchConvertVerifySpreadsheet(
+            SheetsService service, 
+            Spreadsheets.Operator operatorData, 
+            Spreadsheets.SheetsRanges allRanges)
         {
             StringBuilder sb = new StringBuilder().AppendLine(operatorData.OperatorId);
-            StringBuilder pirmiejiProblems = fetchConvertVerifySheet(service, operatorData, allRanges.Pirmieji, DataConverter.ConvertPirmieji, ObjectVerifier.VerifyPirmieji);
-            StringBuilder nepirmiejiProblems = fetchConvertVerifySheet(service, operatorData, allRanges.Nepirmieji, DataConverter.ConvertNepirmieji, ObjectVerifier.VerifyNepirmieji);
+
+            StringBuilder pirmiejiProblems = fetchConvertVerifySheet(
+                service, 
+                operatorData, 
+                allRanges.Pirmieji, 
+                DataConverter.ConvertPirmieji, 
+                ObjectVerifier.VerifyPirmieji);
+
+            StringBuilder nepirmiejiProblems = fetchConvertVerifySheet(
+                service, 
+                operatorData, 
+                allRanges.Nepirmieji, 
+                DataConverter.ConvertNepirmieji, 
+                ObjectVerifier.VerifyNepirmieji);
+
             return sb.AppendLine("Pirmieji").Append(pirmiejiProblems).AppendLine("Nepirmieji").Append(nepirmiejiProblems);
         }
 

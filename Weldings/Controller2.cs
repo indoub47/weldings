@@ -21,52 +21,76 @@ namespace Weldings
         // Update database
         // Update Google Sheets
 
-        // Create Report
-
         private delegate List<WeldingInspection> ConvertDataToListMethod(List<IList<Object>> data, string[] mapping, string operId);
         private delegate StringBuilder VerifyObjectsMethod(List<WeldingInspection> inspectionList);
         private delegate int DbUpdateMethod(List<WeldingInspection> inspectionList);
 
         // kaupiami visi patikrinimai reportui
-        internal static List<WeldingInspection> AllInspections = new List<WeldingInspection>();
-        internal static StringBuilder Results = new StringBuilder(string.Format("{0}, {1}", DateTime.Now.ToShortDateString(), DateTime.Now.ToShortTimeString())).AppendLine();
+        private static IEnumerable<WeldingInspection> allInspections = new List<WeldingInspection>();
+        private static StringBuilder results = new StringBuilder(
+            string.Format("{0}, {1}", 
+                DateTime.Now.ToShortDateString(), 
+                DateTime.Now.ToShortTimeString()))
+            .AppendLine();
+
+        internal static List<WeldingInspection> GetAllProcessedInspections()
+        {
+            return allInspections.ToList();
+        }
+
+        internal static StringBuilder GetProcessingResultInfo()
+        {
+            return results;
+        }
 
         // vieno operatoriaus vienos GS lentelės duomenis - fetchina, paverčia WeldingInspection ir updateinaDB bei GS
         private static void fetchConvertUpdateSheet(SheetsService service,
             Spreadsheets.Operator operatorData, // lemia, katro operatoriaus spreadsheet
-            Spreadsheets.SheetsRanges.SheetRangeData rangeData, ConvertDataToListMethod convertMethod, DbUpdateMethod dbUpdateMethod) // lemia, katrą to operatoriaus lentelę
+            Spreadsheets.SheetsRanges.SheetRangeData rangeData, // lemia, katrą to operatoriaus lentelę 
+            ConvertDataToListMethod convertMethod, // --
+            DbUpdateMethod dbUpdateMethod) // --
         {
             try
             {
-                List<IList<Object>> data = SheetDataFetcher.Fetch(operatorData.SpreadsheetId, rangeData.RangeAddress, rangeData.FilterColumn.Index, service).ToList();
+                List<IList<Object>> data = SheetDataFetcher.Fetch(
+                    operatorData.SpreadsheetId, 
+                    rangeData.RangeAddress, 
+                    rangeData.FilterColumn.Index, 
+                    service).ToList();
                 List<WeldingInspection> inspectionList = convertMethod(data, rangeData.FieldMappings, operatorData.OperatorId);
                 dbUpdateMethod(inspectionList);
-                Results.AppendFormat("{0} {1} db update OK", operatorData.OperatorId, rangeData.SheetName).AppendLine();
-                AllInspections.Concat(inspectionList); // gali kilti problemų
+                results.AppendFormat("{0} {1} db update OK", operatorData.OperatorId, rangeData.SheetName).AppendLine();
+                allInspections = allInspections.Concat(inspectionList);
             }
             catch (Exception ex)
             {
-                Results.AppendFormat("{0} {1} db update FAIL.", operatorData.OperatorId, rangeData.SheetName).AppendLine();
-                Results.AppendFormat("Failure info: {0}", ex.Message).AppendLine();
-                Results.AppendLine("Google Sheets lentelėje duomenys nepažymimi kaip įvesti į DB ir šitie duomenys nebus įtraukti į ataskaitą.");
-                Results.AppendLine();
+                results.AppendFormat("{0} {1} db update FAIL.", operatorData.OperatorId, rangeData.SheetName).AppendLine();
+                Exception e;
+                if (ex.InnerException != null)
+                    e = ex.InnerException;
+                else
+                    e = ex;
+                results.AppendFormat("Exception message: {0}", e.Message).AppendLine();
+                results.AppendLine("Google Sheets lentelėje duomenys nepažymimi kaip įvesti į DB ir šitie duomenys nebus įtraukti į ataskaitą.");
+                results.AppendLine();
                 return;
             }
-            // čia reikėtų updateinti Google Sheets lentelę.
-            // jeigu GS updateinimas nutrūktų, reikėtų informuoti, kad tokio operatoriaus tokie patikrinimai į dB sukišti, bet lentelė neatnaujinta.
+
+            // updateinama Google Sheets lentelė.
+            // jeigu GS updateinimas nutrūktų, informuoja, kad tokio operatoriaus tokie patikrinimai į dB sukišti, bet lentelė neatnaujinta.
             try
             {
                 BatchUpdateValuesResponse response = GSheetsUpdater.BatchUpdateSheet(operatorData.SpreadsheetId, rangeData, service);
-                Results.AppendFormat("{0} {1} Google Sheets update OK", operatorData.OperatorId, rangeData.SheetName).AppendLine();
-                Results.AppendLine();
+                results.AppendFormat("{0} {1} Google Sheets update OK", operatorData.OperatorId, rangeData.SheetName).AppendLine();
+                results.AppendLine();
             }
             catch (Exception ex)
             {
-                Results.AppendFormat("{0} {1} Google Sheets update FAIL.", operatorData.OperatorId, rangeData.SheetName).AppendLine();
-                Results.AppendFormat("Failure info: {0}", ex.Message).AppendLine();
-                Results.Append("DĖMESIO! Kadangi duomenys į duomenų bazę sukelti, tie duomenys bus įtraukti į ataskaitą, kaip sutvarkyti. ");
-                Results.AppendLine("Google Sheets lentelę reikėtų sutvarkyti rankiniu būdu - prisijungti prie Google Sheets, atsidaryti lentelę ir joje pažymėti, kurie duomenys yra sukelti į DB.");
-                Results.AppendLine();
+                results.AppendFormat("{0} {1} Google Sheets update FAIL.", operatorData.OperatorId, rangeData.SheetName).AppendLine();
+                results.AppendFormat("Failure info: {0}", ex.Message).AppendLine();
+                results.Append("DĖMESIO! Kadangi duomenys į duomenų bazę sukelti, tie duomenys bus įtraukti į ataskaitą, kaip sutvarkyti. ");
+                results.AppendLine("Google Sheets lentelę reikėtų sutvarkyti rankiniu būdu - prisijungti prie Google Sheets, atsidaryti lentelę ir joje pažymėti, kurie duomenys yra sukelti į DB.");
+                results.AppendLine();
             }
         }
 
@@ -82,7 +106,7 @@ namespace Weldings
             {
                 fetchConvertUpdateSpreadsheet(service, operatorData, allRanges);
             }
-            AllInspections.ToList();
+            allInspections.ToList();
         }
 
     }

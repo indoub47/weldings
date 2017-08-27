@@ -8,9 +8,9 @@ namespace Weldings
 {
     internal static class ReportCreator
     {
-        internal static StringBuilder CreateTxt(List<WeldingInspection>wiListPirmieji, List<WeldingInspection>wiListNepirmieji)
+        internal static StringBuilder CreateTxt(List<WeldingInspection>lsWeldingInspections)
         {
-            IEnumerable<WeldingInspection> wiList = wiListPirmieji.Concat(wiListNepirmieji);
+            IEnumerable<WeldingInspection> wiList = lsWeldingInspections;
             StringBuilder sb = new StringBuilder(DateTime.Now.ToShortDateString() + ", " + DateTime.Now.ToShortTimeString()).AppendLine();
 
             var groupped = wiList.OrderBy(x1 => x1.TikrinimoData).GroupBy(xx1 => xx1.TikrinimoData.Date, (key1, group1) => new

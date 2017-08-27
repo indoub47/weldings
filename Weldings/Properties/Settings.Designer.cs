@@ -214,5 +214,17 @@ namespace Weldings.Properties {
                 this["SpreadsheetsJsonPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("processing_info {0:yyyy-MM-dd H-mm-ss}")]
+        public string ProcessingInfoFileNameFormat {
+            get {
+                return ((string)(this["ProcessingInfoFileNameFormat"]));
+            }
+            set {
+                this["ProcessingInfoFileNameFormat"] = value;
+            }
+        }
     }
 }

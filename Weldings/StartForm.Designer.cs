@@ -170,6 +170,7 @@
             this.btnWriteData.TabIndex = 9;
             this.btnWriteData.Text = "Update DB";
             this.btnWriteData.UseVisualStyleBackColor = true;
+            this.btnWriteData.Click += new System.EventHandler(this.btnWriteData_Click);
             // 
             // btnVerifyData
             // 

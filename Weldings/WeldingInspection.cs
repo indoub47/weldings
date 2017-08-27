@@ -51,14 +51,14 @@ namespace Weldings
             if (this.Kelias == 8 || this.Kelias == 9)
                 if (this.M != null)
                     if (this.Siule != null)
-                        throw new Exception("Suvirinimas iešme, bet nurodyta siūlė.");
+                        throw new Exception("Suvirinimas iešme, bet nurodyta siūlė - operatorius " + operatorius + ", pirmieji tikrinimai.");
                     else
                     {
                         this.Nr = this.M;
                         this.Siule = null;
                     }
                 else
-                    throw new Exception("Suvirinimas iešme, bet metrų pozicijoje neįrašytas suvirinimo numeris.");
+                    throw new Exception("Suvirinimas iešme, bet metrų pozicijoje neįrašytas suvirinimo numeris - operatorius " + operatorius + ", pirmieji tikrinimai.");
             else
             {
                 this.Nr = null;
@@ -86,7 +86,7 @@ namespace Weldings
             // ne pirmas tikrinimas
             if (kelintasTikrinimas == Kelintas.I)
             {
-                throw new Exception("Pirmasis tikrinimas įvedamas su ne pirmojo tikrinimo konstruktoriumi.");
+                throw new Exception("Nurodytas suvirinimo ID, bet pažymėtas kaip pirmasis tikrinimas - operatorius " + operatorius + ", pirmieji tikrinimai.");
             }
             this.Id = id;
             if (kelintasTikrinimas == Kelintas.papildomas)
