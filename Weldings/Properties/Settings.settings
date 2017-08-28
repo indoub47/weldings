@@ -5,12 +5,6 @@
     <Setting Name="PapildomoPastaba" Type="System.String" Scope="User">
       <Value Profile="(Default)"> PT-{0}/{1}/{2:d}</Value>
     </Setting>
-    <Setting Name="PirmiejiSuvirinimaiFile" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\pc\Documents\Visual Studio 2017\Projects\Weldings\DB\pirmieji.txt</Value>
-    </Setting>
-    <Setting Name="NepirmiejiSuvirinimaiFile" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\pc\Documents\Visual Studio 2017\Projects\Weldings\DB\kiti.txt</Value>
-    </Setting>
     <Setting Name="Ifas" Type="System.String" Scope="User">
       <Value Profile="(Default)">4</Value>
     </Setting>
@@ -52,6 +46,12 @@
     </Setting>
     <Setting Name="ProcessingInfoFileNameFormat" Type="System.String" Scope="User">
       <Value Profile="(Default)">processing_info {0:yyyy-MM-dd H-mm-ss}</Value>
+    </Setting>
+    <Setting Name="Proxy" Type="System.String" Scope="User">
+      <Value Profile="(Default)">proxy.adm.lg</Value>
+    </Setting>
+    <Setting Name="Port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8080</Value>
     </Setting>
   </Settings>
 </SettingsFile>

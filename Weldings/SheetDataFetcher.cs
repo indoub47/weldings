@@ -16,6 +16,7 @@ namespace Weldings
         {
             SpreadsheetsResource.ValuesResource.GetRequest request =
                     service.Spreadsheets.Values.Get(spreadsheetId, range);
+ 
             ValueRange response = request.Execute();
             IList<IList<Object>> allRecords = response.Values;
 
