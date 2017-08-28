@@ -54,7 +54,18 @@ namespace Weldings
                 return;
             }
 
-            SheetsService service = GSheetsConnector.Connect();
+            SheetsService service = null;
+
+            try
+            {
+                service = GSheetsConnector.Connect();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("GSheetsConnector.Connect() failed: " + ex.Message, "StartForm.btnVerifyDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             Spreadsheets.Operator[] operators = SpreadsheetsData.Operators;
             Spreadsheets.SheetsRanges allRanges = SpreadsheetsData.AllRanges;
 
@@ -119,7 +130,17 @@ namespace Weldings
 
             // perform update
             /* internal static void fetchConvertUpdate(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges) */
-            SheetsService service = GSheetsConnector.Connect();
+            SheetsService service = null;
+            try
+            {
+                service = GSheetsConnector.Connect();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("GSheetsConnector.Connect() failed: " + ex.Message, "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             Spreadsheets.Operator[] operators = SpreadsheetsData.Operators;
             Spreadsheets.SheetsRanges allRanges = SpreadsheetsData.AllRanges;
 
@@ -228,6 +249,11 @@ namespace Weldings
             {
                 Directory.CreateDirectory(Settings.Default.OutputPath);
             }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
