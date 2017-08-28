@@ -138,7 +138,7 @@ namespace Weldings
                         case Kelintas.III:
                             patData = "III_pat_data";
                             aparat = "III_pat_aparat";
-                            operatorius = "III_pat_operacqtor";
+                            operatorius = "III_pat_operaqtor";
                             break;
                         case Kelintas.IV:
                             patData = "IV_pat_data";

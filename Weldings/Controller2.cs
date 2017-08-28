@@ -27,6 +27,7 @@ namespace Weldings
 
         // kaupiami visi patikrinimai reportui
         private static IEnumerable<WeldingInspection> allInspections = new List<WeldingInspection>();
+
         private static StringBuilder results = new StringBuilder(
             string.Format("{0}, {1}", 
                 DateTime.Now.ToShortDateString(), 
