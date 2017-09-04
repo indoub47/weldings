@@ -7,414 +7,347 @@ using System.Threading.Tasks;
 
 namespace Weldings
 {
-    internal static class DataConverter
+    public static class DataConverter
     {
+
         // iš Google Sheets data formato List<ILIst<Object>> padaro List<WeldingInspection>
-        internal static List<WeldingInspection> ConvertPirmieji(List<IList<Object>> data, string[] mapping, string operatorius)
+        //   , o jeigu buvo rasta blogų duomenų, tuomet throw new BadDataException
+        public static List<WeldingInspection> ConvertPirmieji(List<IList<Object>> data, string[] mapping, string operatorius)
         {
             List<WeldingInspection> tikrinimaiList = new List<WeldingInspection>();
+            List<BadData> badDataList = new List<BadData>();
             string ifas = Properties.Settings.Default.Ifas;
             if (data == null || data.Count == 0) return tikrinimaiList;
             foreach (var row in data)
             {
                 object value;
-                string linija, salKodas, aparatas, suvirino;
-                DateTime tikrinimoData;
-                int kelias, km;
-                int? pk, m, siule;
+                int bdlCount = badDataList.Count; // kiek buvo BadData šitos row tikrinimo pradžioje
 
-                object obLinija = row[Array.IndexOf(mapping, "Linia")];
-                object obKelias = row[Array.IndexOf(mapping, "Kel")];
-                object obKm = row[Array.IndexOf(mapping, "kilomrtras")];
-                object obPk = row[Array.IndexOf(mapping, "piket")];
-                object obM = row[Array.IndexOf(mapping, "metras")];
-                object obSiule = row[Array.IndexOf(mapping, "siule")];
+                string linija = null, salKodas = null, aparatas = null, suvirino = null;
+                int kelias = -1, km = -1, m = -1;
+                int? pk = null, siule = null;
+                DateTime tikrinimoData = DateTime.MinValue;
 
-                string kur = "Operatorius " + operatorius + ", pirmieji tikrinimai, " + dataRowToVietosKodas(obLinija, obKelias, obKm, obPk, obM, obSiule) + ": ";
+                // žyma, nurodyti, kurioje vietoje problemos
+                string vietosKodoSurogatas = dataRowToVietosKodas(row, mapping);
 
-                if (obLinija == null || obLinija.ToString().Trim() == string.Empty)
-                    throw new Exception(kur + "neįrašytas laukas XX.yyyy.yy.yy.y.");
-                else
-                    linija = obLinija.ToString().Trim();
+                // tikrinami bendri pirmiems ir nepirmiems
+                List<string> messages = patikrintiBendrus(row, mapping,
+                    ref linija, ref kelias, ref km, ref pk, ref m, ref siule,
+                    ref salKodas, ref aparatas, ref tikrinimoData);
 
-                try
+                foreach (string message in messages)
                 {
-                    kelias = Convert.ToInt32(obKelias);
-                }
-                catch
-                {
-                    throw new Exception(kur + "neįrašytas arba įrašytas ne skaičiais laukas yy.Xyyy.yy.yy.y.");
+                    badDataList.Add(new BadData(operatorius, SheetType.pirmieji, vietosKodoSurogatas, message));
                 }
 
-                try
-                {
-                    km = Convert.ToInt32(obKm);
-                }
-                catch
-                {
-                    throw new Exception(kur + "neįrašytas arba įrašytas ne skaičiais laukas yy.yXXX.yy.yy.y.");
-                }
-
-                if (obPk == null || obPk.ToString().Trim() == string.Empty)
-                {
-                    pk = null;
-                }
-                else
-                    try
-                    {
-                        pk = Convert.ToInt32(obPk);
-                    }
-                    catch
-                    {
-                        throw new Exception(kur + "ne skaičiais įrašytas laukas yy.yyyy.XX.yy.y.");
-                    }
-
-                if (obM == null || obM.ToString().Trim() == string.Empty)
-                {
-                    m = null;
-                }
-                else
-                    try
-                    {
-                        m = Convert.ToInt32(obM);
-                    }
-                    catch
-                    {
-                        throw new Exception(kur + "ne skaičiais įrašytas laukas yy.yyyy.yy.XX.y.");
-                    }
-
-                if (obSiule == null || obSiule.ToString().Trim() == string.Empty)
-                {
-                    siule = null;
-                }
-                else
-                    try
-                    {
-                        siule = Convert.ToInt32(obSiule);
-                    }
-                    catch
-                    {
-                        throw new Exception(kur + "ne skaičiais įrašytas laukas yy.yyyy.yy.yy.X.");
-                    }
-
-                value = row[Array.IndexOf(mapping, "saliginis kodas")];
+                // specifinis pirmiesiems
+                value = getRowItem("suvirino", mapping, row);
                 if (value == null || value.ToString().Trim() == string.Empty)
-                    throw new Exception(kur + "nenurodytas salyginis kodas.");
+                {
+                    badDataList.Add(new BadData(operatorius, SheetType.pirmieji, vietosKodoSurogatas, "kas suvirino"));
+                }
                 else
-                    salKodas = value.ToString().Trim();
-
-                value = row[Array.IndexOf(mapping, "I_pat_aparat")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    throw new Exception(kur + "nenurodytas defektoskopo kodas.");
-                else
-                    aparatas = value.ToString().Trim();
-
-                value = row[Array.IndexOf(mapping, "suvirino")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    throw new Exception(kur + "nenurodyta, kas suvirino.");
-                else
+                {
                     suvirino = value.ToString().Trim();
-
-                value = row[Array.IndexOf(mapping, "I_pat_data")];
-                try
-                {
-                    tikrinimoData = Convert.ToDateTime(value);
-                }
-                catch
-                {
-                    throw new Exception(kur + "nenurodyta arba nesuprantama data.");
                 }
 
-                if (Properties.Settings.Default.CheckDateIfReal && isNotReal(tikrinimoData))
+                // specifinis pirmiesiems
+                if (kelias != -1 && kelias != 8 && pk == null)
                 {
-                    throw new Exception(kur + string.Format("tikrinimo data {0:yyyy-MM-dd} neatrodo reali."));
+                    badDataList.Add(new BadData(operatorius, SheetType.pirmieji, vietosKodoSurogatas, "pk"));
                 }
 
-                WeldingInspection wi = new WeldingInspection(
-                        linija, // linija
-                        kelias, // kelias
-                        km, // km
-                        pk, // pk
-                        m, // m
-                        siule, // siule
-                        salKodas, // sąlyginis kodas
-                        operatorius, // operatorius
-                        aparatas, // aparatas
-                        tikrinimoData.Date, // data
-                        suvirino, // suvirino
-                        ifas, // if
-                        false, "", null); // panaikintas, pastaba, defektoId
-                tikrinimaiList.Add(wi);
+                // specifinis pirmiesiems
+                if ((kelias == 8 || kelias == 9) && siule != null)
+                {
+                    badDataList.Add(new BadData(operatorius, SheetType.pirmieji, vietosKodoSurogatas, "suvirinimas iešme, o nurodyta siūlė"));
+                }
+
+                // jeigu tikrinant šitą row nebuvo aptikta problemų - new WeldingInspection
+                if (bdlCount == badDataList.Count)
+                {
+                    WeldingInspection wi = new WeldingInspection(
+                            null, // id
+                            linija, kelias, km, pk, m, siule,
+                            salKodas,
+                            operatorius,
+                            aparatas,
+                            tikrinimoData.Date,
+                            suvirino,
+                            Kelintas.I);
+                    tikrinimaiList.Add(wi);
+                }
             }
+
+            if (badDataList.Count > 0)
+            {
+                throw new BadDataException("Blogi duomenys lentelėse - nepavyksta perskaityti vietos kodo", badDataList);
+            }
+
+            // jeigu visi įrašai geri
             return tikrinimaiList;
         }
 
-        internal static List<WeldingInspection> ConvertNepirmieji(List<IList<Object>> data, string[] mapping, string operatorius)
+
+        // iš Google Sheets data formato List<ILIst<Object>> padaro List<WeldingInspection>
+        //   , o jeigu buvo rasta blogų duomenų, tuomet throw new BadDataException
+        public static List<WeldingInspection> ConvertNepirmieji(List<IList<Object>> data, string[] mapping, string operatorius)
         {
             List<WeldingInspection> tikrinimaiList = new List<WeldingInspection>();
+            List<BadData> badDataList = new List<BadData>();
             if (data == null || data.Count == 0) return tikrinimaiList;
             foreach (var row in data)
             {
-                object value;
-                long id;
-                string linija, salKodas, aparatas;
-                int kelias, km;
-                int? pk, m, siule;
-                DateTime tikrinimoData;
-                Kelintas kelintasTikrinimas;
+                object value; // row stulpelio value
+                int bdlCount = badDataList.Count; // kiek buvo BadData šitos row tikrinimo pradžioje
 
-                string kur = "Operatorius " + operatorius + ", nepirmieji tikrinimai: ";
+                long id = 0;
+                string linija = null, salKodas = null, aparatas = null;
+                int kelias = -1, km = -1, m = -1;
+                int? pk = null, siule = null;
+                DateTime tikrinimoData = DateTime.MinValue;
+                Kelintas kelintas = Kelintas.I;
 
-                value = row[Array.IndexOf(mapping, "number")];
+                // specifinis nepirmiesiems
+                value = getRowItem("id", mapping, row);
+                string idZyma = value.ToString(); // žyma, pažymėti, kurioje vietoje problemos
                 try
                 {
                     id = Convert.ToInt64(value);
                 }
                 catch
                 {
-                    throw new Exception(kur + "suvirinimo id neįrašytas arba įrašytas ne skaičiais.");
+                    badDataList.Add(new BadData(operatorius, SheetType.nepirmieji, idZyma, "suvirinimo id"));
                 }
 
-                // kur pataisomas, pridedant id - kad būtų lengva rasti
-                kur = "Operatorius " + operatorius + ", nepirmieji tikrinimai, id " + id.ToString() + ": ";
+                // tikrinami bendri pirmiems ir nepirmiems
+                List<string> messages = patikrintiBendrus(row, mapping,
+                    ref linija, ref kelias, ref km, ref pk, ref m, ref siule,
+                    ref salKodas, ref aparatas, ref tikrinimoData);
 
-                value = row[Array.IndexOf(mapping, "Linia")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    throw new Exception(kur + "neįrašytas laukas XX.yyyy.yy.yy.y.");
+                foreach (string message in messages)
+                {
+                    badDataList.Add(new BadData(operatorius, SheetType.nepirmieji, idZyma, message));
+                }
+
+                // specifinis nepirmiems
+                value = getRowItem("kelintas_tikrinimas", mapping, row);
+                if (value == null || value.ToString().Trim() == string.Empty || !new[]{"2", "3", "4", "papild"}.Contains(value.ToString().Trim()))
+                {
+                    badDataList.Add(new BadData(operatorius, SheetType.nepirmieji, idZyma, "kelintas tikrinimas"));
+                }
                 else
-                    linija = value.ToString().Trim();
-
-                value = row[Array.IndexOf(mapping, "Kel")];
-                try
                 {
-                    kelias = Convert.ToInt32(value);
-                }
-                catch
-                {
-                    throw new Exception(kur + "neįrašytas arba įrašytas ne skaičiais laukas yy.Xyyy.yy.yy.y.");
-                }
-
-                value = row[Array.IndexOf(mapping, "kilomrtras")];
-                try
-                {
-                    km = Convert.ToInt32(value);
-                }
-                catch
-                {
-                    throw new Exception(kur + "neįrašytas arba įrašytas ne skaičiais laukas yy.yXXX.yy.yy.y.");
-                }
-
-                value = row[Array.IndexOf(mapping, "piket")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    pk = null;
-                else
-                    try
+                    string val = value.ToString().Trim();
+                    switch (val)
                     {
-                        pk = Convert.ToInt32(value);
+                        case "2":
+                            kelintas = Kelintas.II;
+                            break;
+                        case "3":
+                            kelintas = Kelintas.III;
+                            break;
+                        case "4":
+                            kelintas = Kelintas.IV;
+                            break;
+                        case "papild":
+                            kelintas = Kelintas.papildomas;
+                            break;
                     }
-                    catch
-                    {
-                        throw new Exception(kur + "ne skaičiais įrašytas laukas yy.yyyy.XX.yy.y.");
-                    }
-
-                value = row[Array.IndexOf(mapping, "metras")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    m = null;
-                else
-                    try
-                    {
-                        m = Convert.ToInt32(value);
-                    }
-                    catch
-                    {
-                        throw new Exception(kur + "ne skaičiais įrašytas laukas yy.yyyy.yy.XX.y.");
-                    }
-
-                value = row[Array.IndexOf(mapping, "siule")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    siule = null;
-                else
-                    try
-                    {
-                        siule = Convert.ToInt32(value);
-                    }
-                    catch
-                    {
-                        throw new Exception(kur + "ne skaičiais įrašytas laukas yy.yyyy.yy.yy.X.");
-                    }
-
-                value = row[Array.IndexOf(mapping, "saliginis kodas")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    throw new Exception(kur + "nenurodytas salyginis kodas.");
-                else
-                    salKodas = value.ToString().Trim();
-
-                value = row[Array.IndexOf(mapping, "tikrinimo_aparatas")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    throw new Exception(kur + "nenurodytas defektoskopo kodas.");
-                else
-                    aparatas = value.ToString().Trim();
-
-                value = row[Array.IndexOf(mapping, "tikrinimo_data")];
-                try
-                {
-                    tikrinimoData = Convert.ToDateTime(value);
-                }
-                catch
-                {
-                    throw new Exception(kur + "nenurodyta arba nesuprantama data.");
                 }
 
-                if (Properties.Settings.Default.CheckDateIfReal && isNotReal(tikrinimoData))
+                // jeigu tikrinant šitą row nebuvo aptikta problemų - new WeldingInspection
+                if (bdlCount == badDataList.Count)
                 {
-                    throw new Exception(kur + string.Format("tikrinimo data {0:yyyy-MM-dd} neatrodo reali."));
+                    WeldingInspection wi = new WeldingInspection(
+                        id,
+                        linija, kelias, km, pk, m, siule,
+                        salKodas,
+                        operatorius,
+                        aparatas,
+                        tikrinimoData.Date,
+                        null, // suvirino
+                        kelintas);
+                    tikrinimaiList.Add(wi);
                 }
-
-                value = row[Array.IndexOf(mapping, "kelintas_tikrinimas")];
-                if (value == null || value.ToString().Trim() == string.Empty)
-                    throw new Exception(kur + "nenurodyta, kelintas tikrinimas.");
-                else
-                    kelintasTikrinimas = (Kelintas)Enum.Parse(typeof(Kelintas), value.ToString().Trim());
-
-                WeldingInspection wi = new WeldingInspection(
-                        id, // number, id
-                        linija, // linija
-                        kelias, // kelias
-                        km, // km
-                        pk, // pk
-                        m, // m
-                        siule, // siule
-                        salKodas, // sąlyginis kodas
-                        operatorius, // operatorius
-                        aparatas, // aparatas
-                        tikrinimoData.Date, // data
-                        false, "", null, // panaikintas, pastaba, defektoId
-                        kelintasTikrinimas); // kelintas tikrinimas
-                tikrinimaiList.Add(wi);
             }
+
+            if (badDataList.Count > 0)
+            {
+                throw new BadDataException("Blogi duomenys lentelėje - nepavyksta perskaityti vietos kodo", badDataList);
+            }
+
+            // jeigu visi įrašai geri
             return tikrinimaiList;
         }
 
+        // Atlieka duomenų patikrinimą. Atlieka tuos tikrinimus, kurie bendri ir pirmiesiems, ir 
+        // nepirmiesiems. Grąžina List<string> - problemų List. Jeigu problemų nėra, grąžina tuščią List
+        private static List<string> patikrintiBendrus(IList<object> row, string[] mapping,
+            ref string linija, ref int kelias, ref int km, ref int? pk, ref int m, ref int? siule,
+            ref string salKodas, ref string aparatas, ref DateTime tikrinimoData)
+        {
+            object value;
+            List<string> messages = new List<string>();
+
+            value = getRowItem("linija", mapping, row);
+            if (value == null || value.ToString().Trim() == string.Empty)
+            {
+                messages.Add("XX.oooo.oo.oo.o");
+            }
+            else
+            {
+                linija = value.ToString().Trim();
+            }
+
+            value = getRowItem("kelias", mapping, row);
+            try
+            {
+                kelias = Convert.ToInt32(value);
+            }
+            catch
+            {
+                messages.Add("oo.Xooo.oo.oo.o");
+            }
+
+            value = getRowItem("km", mapping, row);
+            try
+            {
+                km = Convert.ToInt32(value);
+            }
+            catch
+            {
+                messages.Add("oo.oXXX.oo.oo.o");
+            }
+
+            value = getRowItem("pk", mapping, row);
+            if (value == null || value.ToString().Trim() == string.Empty)
+            {
+                pk = null;
+            }
+            else
+            {
+                try
+                {
+                    pk = Convert.ToInt32(value);
+                }
+                catch
+                {
+                    messages.Add("oo.oooo.XX.oo.o");
+                }
+            }
+
+            value = getRowItem("m", mapping, row);
+            try
+            {
+                m = Convert.ToInt32(value);
+            }
+            catch
+            {
+                messages.Add("oo.oooo.oo.XX.o");
+            }
+
+            value = getRowItem("siule", mapping, row);
+            if (value == null || value.ToString().Trim() == string.Empty)
+            {
+                siule = null;
+            }
+            else
+            {
+                try
+                {
+                    siule = Convert.ToInt32(value);
+                }
+                catch
+                {
+                    messages.Add("oo.oooo.oo.oo.X");
+                }
+            }
+
+            value = getRowItem("salyginis_kodas", mapping, row);
+            if (value == null || value.ToString().Trim() == string.Empty)
+            {
+                messages.Add("salyginis kodas");
+            }
+            else
+            {
+                salKodas = value.ToString().Trim();
+            }
+
+            value = getRowItem("aparatas", mapping, row);
+            if (value == null || value.ToString().Trim() == string.Empty)
+            {
+                messages.Add("defektoskopo kodas");
+            }
+            else
+            {
+                aparatas = value.ToString().Trim();
+            }
+
+            value = getRowItem("tikrinimo_data", mapping, row);
+            try
+            {
+                tikrinimoData = Convert.ToDateTime(value);
+                if (Properties.Settings.Default.CheckDateIfReal && isNotReal(tikrinimoData))
+                {
+                    messages.Add(string.Format("tikrinimo data {0:yyyy-MM-dd} neatrodo reali", tikrinimoData));
+                }
+            }
+            catch
+            {
+                messages.Add("tikrinimo data");
+            }
+
+            return messages;
+        }
+
+        // Tikrina, ar patikrinimo data nėra ateityje arba per giliai praeityje
         private static bool isNotReal(DateTime tikrinimoData)
         {
             return (tikrinimoData > DateTime.Now) ||
                 (tikrinimoData < DateTime.Now.AddDays(-Properties.Settings.Default.AllowedDayCount));
         }
 
-        private static string dataRowToVietosKodas(object obLinija, object obKelias, object obKm, object obPk, object obM, object obSiule)
+        // pagamina vietos kodo surogatą iš nepatikrintų duomenų - reikalingas kažkaip 
+        // pažymėti, kurioje Google Sheet eilutėje aptiktos problemos
+        private static string dataRowToVietosKodas(IList<object> row, string[] mapping)
         {
-            return string.Format("{0}.{1:0}{2:000}.{3:#00}.{4:#00}.{5:##0}", obLinija, obKelias, obKm, obPk, obM, obSiule);
+            return string.Format("{0:00}.{1:0}{2:000}.{3:#00}.{4:#00}.{5:##0}",
+                getRowCellObject(getRowItem("linija",mapping, row)),
+                getRowCellObject(getRowItem("kelias", mapping, row)),
+                getRowCellObject(getRowItem("km", mapping, row)),
+                getRowCellObject(getRowItem("pk", mapping, row)),
+                getRowCellObject(getRowItem("m", mapping, row)),
+                getRowCellObject(getRowItem("siule", mapping, row)));
         }
 
-
-        /*
-        internal static List<WeldingInspection> ReadPirmiejiCsv(string CsvPath, string[] delims)
+        // jeigu tuščias row cell, grąžina brūkšnelį. 
+        private static object getRowCellObject(object obj)
         {
-            List<WeldingInspection> tikrinimaiList = new List<WeldingInspection>();
-            using (var reader = new StreamReader(CsvPath))
+            if (obj == null || obj.ToString().Trim() == string.Empty)
             {
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    var values = line.Split(delims,StringSplitOptions.None);
-                    int kelias, km;
-                    int? pk, m, siule;
-
-                    if (values[1] == null || values[1].ToString().Trim() == string.Empty)
-                        throw new Exception("Nenurodyta linija pirmuosiuose tikrinimuose");
-
-                    try
-                    {
-                        kelias = Convert.ToInt32(values[2]);
-                        km = Convert.ToInt32(values[3]);
-                    }
-                    catch
-                    {
-                        throw new Exception("Pirmuosiuose tikrinimuose kelias arba km neišreikšti skaičiais");
-                    }
-
-                    if (values[4] == null || values[4].ToString() == string.Empty) pk = null;
-                    else pk = Convert.ToInt32(values[4]);
-
-                    if (values[5] == null || values[5].ToString() == string.Empty) m = null;
-                    else m = Convert.ToInt32(values[5]);
-
-                    if (values[6] == null || values[6].ToString() == string.Empty) siule = null;
-                    else siule = Convert.ToInt32(values[6]);
-
-                    WeldingInspection wi = new WeldingInspection(
-                        values[1], // linija
-                        kelias, // kelias
-                        km, // km
-                        pk, // pk
-                        m, // m
-                        siule, // siule
-                        values[7], // sąlyginis kodas
-                        values[15], // operatorius
-                        values[14], // aparatas
-                        Convert.ToDateTime(values[13]).Date, // data
-                        values[9], // suvirino
-                        Properties.Settings.Default.Ifas, // if
-                        false, "", null); // panaikintas, pastaba, defektoId
-                    tikrinimaiList.Add(wi);
-                }
+                return (object)"_";
             }
-            return tikrinimaiList;            
-        }
 
-        internal static List<WeldingInspection> ReadNepirmiejiCsv(string CsvPath, string[] delims)
-        {
-            List<WeldingInspection> tikrinimaiList = new List<WeldingInspection>();
-            using (var reader = new StreamReader(CsvPath))
+            try
             {
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    var values = line.Split(delims, StringSplitOptions.None);
-                    int kelias, km;
-                    int? pk, m, siule;
-
-                    if (values[1] == null || values[1].ToString().Trim() == string.Empty)
-                        throw new Exception("Nenurodyta linija nepirmuosiuose tikrinimuose");
-
-                    try
-                    {
-                        kelias = Convert.ToInt32(values[2]);
-                        km = Convert.ToInt32(values[3]);
-                    }
-                    catch
-                    {
-                        throw new Exception("Nepirmuosiuose tikrinimuose kelias arba km neišreikšti skaičiais");
-                    }
-
-                    if (values[4] == null || values[4].ToString() == string.Empty) pk = null;
-                    else pk = Convert.ToInt32(values[4]);
-
-                    if (values[5] == null || values[5].ToString() == string.Empty) m = null;
-                    else m = Convert.ToInt32(values[5]);
-
-                    if (values[6] == null || values[6].ToString() == string.Empty) siule = null;
-                    else siule = Convert.ToInt32(values[6]);
-
-                    WeldingInspection wi = new WeldingInspection(
-                       Convert.ToInt64(values[0]),
-                       values[1], // linija
-                       kelias, // kelias
-                       km, // km
-                       pk, // pk
-                       m, // m
-                       siule, // siule
-                       values[7], // sąlyginis kodas
-                       values[14], // operatorius
-                       values[13], // aparatas
-                       Convert.ToDateTime(values[12]).Date, // data
-                       false, "", null, // panaikintas, pastaba, defektoId
-                       (Kelintas)Enum.Parse(typeof(Kelintas), values[15])); // kelintas
-                    tikrinimaiList.Add(wi);
-                }
+                return (object)Convert.ToInt32(obj);
             }
-            return tikrinimaiList;
+            catch
+            {
+                return obj;
+            }
+
         }
-        */
+
+        private static object getRowItem(string colName, string[] mapping, IList<object> row)
+        {
+            // iš tikrųjų čia apsisaugoti nuo to dalyko, kad row gali būti trumpesnis
+            // negu mapping
+            int ind = Array.IndexOf(mapping, colName);
+            if (row.Count - 1 < ind) return null;
+            return row[ind];
+        }
     }
 }

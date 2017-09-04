@@ -14,7 +14,7 @@ using System.Threading;
 
 namespace Weldings
 {
-    internal static class Controller2
+    public static class Controller2
     {
         // Fetch data from Google Sheets
         // Try to convert it to WeldingInspections
@@ -34,12 +34,12 @@ namespace Weldings
                 DateTime.Now.ToShortTimeString()))
             .AppendLine();
 
-        internal static List<WeldingInspection> GetAllProcessedInspections()
+        public static List<WeldingInspection> GetAllProcessedInspections()
         {
             return allInspections.ToList();
         }
 
-        internal static StringBuilder GetProcessingResultInfo()
+        public static StringBuilder GetProcessingResultInfo()
         {
             return results;
         }
@@ -101,7 +101,7 @@ namespace Weldings
             fetchConvertUpdateSheet(service, operatorData, allRanges.Nepirmieji, DataConverter.ConvertNepirmieji, DBUpdater.DoNepirmieji);
         }
 
-        internal static void fetchConvertUpdate(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges)
+        public static void fetchConvertUpdate(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges)
         {
             foreach (Spreadsheets.Operator operatorData in operators)
             {

@@ -10,10 +10,11 @@ using Google.Apis.Util.Store;
 
 namespace Weldings
 {
-    internal static class SheetDataFetcher
+    public static class SheetDataFetcher
     {
-        internal static IList<IList<Object>> Fetch(string spreadsheetId, string range, int filterFieldIndex, SheetsService service)
+        public static List<IList<Object>> Fetch(string spreadsheetId, string range, int filterFieldIndex, SheetsService service)
         {
+
             SpreadsheetsResource.ValuesResource.GetRequest request =
                     service.Spreadsheets.Values.Get(spreadsheetId, range);
  
@@ -24,7 +25,9 @@ namespace Weldings
                 throw new Exception("Duomenų parsisiuntimo iš Google Sheets rezultatas - null.");
 
             // nufiltruojami tie, kurių įvedimo į db data nelygi null
-            return allRecords.Where(x => x.Count <= filterFieldIndex || x[filterFieldIndex] == null).ToList<IList<Object>>();
+            List<IList<Object>> list = allRecords.ToList<IList<Object>>();
+            list.RemoveAt(0);
+            return list.Where(x => x.Count <= filterFieldIndex || x[filterFieldIndex] == null).ToList<IList<Object>>();
         }
     }
 }

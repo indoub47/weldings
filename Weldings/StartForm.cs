@@ -29,7 +29,8 @@ namespace Weldings
         {
             txDataVerifyFNFormat.Text = Settings.Default.DataVerifyFileNameFormat;
             txDbBackupFNFormat.Text = Settings.Default.DBBackupFilenameFormat;
-            txDbUpdateFNFormat.Text = Settings.Default.DbUpdateResultFileNameFormat;
+            txDbUpdateInfoFNFormat.Text = Settings.Default.DbUpdateFileNameFormat;
+            txDbUpdateReportFNFormat.Text = Settings.Default.UpdateReportFileNameFormat;
 
             chbVerifyDate.Checked = Settings.Default.CheckDateIfReal;
             nudDaysBefore.Value = Convert.ToDecimal(Settings.Default.AllowedDayCount);
@@ -39,63 +40,131 @@ namespace Weldings
 
             txbDbPath.Text = Settings.Default.AccessDbPath;
             txbOutputFolder.Text = Settings.Default.OutputPath;
+
+            chbAbortFailedRollback.Checked = Settings.Default.AbortOnFailedRollback;
+            chbBackupDB.Checked = Settings.Default.CreateDBBackup;
+            chbVerbose.Checked = Settings.Default.ShowErrorMessages;
         }
 
         private void btnVerifyData_Click(object sender, EventArgs e)
         {
+            if (!File.Exists(Settings.Default.AccessDbPath))
+            {
+                string errorText = string.Format("DB file {0} not found!",
+                    Settings.Default.AccessDbPath);
+                MessageBox.Show(
+                    errorText,
+                    StartFormMessages.Default.OperationAbortedTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(errorText);
+                return;
+            }
+
             try
             {
                 checkOutputFolder();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Cannot create the output folder \"" + Settings.Default.OutputPath + "\". Try to create it manually.\n\n" + ex.Message ,
-                    "StartForm.btnVerifyDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format(
+                        StartFormMessages.Default.CannotCreateOutputFolder, Settings.Default.OutputPath),
+                    StartFormMessages.Default.CreateFolderErrorTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(ex);
                 return;
             }
 
-            SheetsService service = null;
-
-            try
+            if (!dirIsWritable(Settings.Default.OutputPath))
             {
-                service = GSheetsConnector.Connect();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("GSheetsConnector.Connect() failed: " + ex.Message, "StartForm.btnVerifyDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errorText = string.Format(
+                    "Output directory {0} is not writable",
+                    Settings.Default.OutputPath);
+                MessageBox.Show(
+                    errorText,
+                    StartFormMessages.Default.OperationAbortedTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(errorText);
                 return;
             }
 
             Spreadsheets.Operator[] operators = SpreadsheetsData.Operators;
             Spreadsheets.SheetsRanges allRanges = SpreadsheetsData.AllRanges;
 
-            string outputFileName =  getOutputFileName(Settings.Default.DataVerifyFileNameFormat, "data verify output");
+            string outputFileName = createFileName(
+                Settings.Default.DataVerifyFileNameFormat,
+                "DataVerifyFileNameFormat", ".txt");
             if (outputFileName == string.Empty)
             {
-                service.Dispose();
                 return;
             }
-            
-            using (StreamWriter sw = new StreamWriter(outputFileName))
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat(StartFormMessages.Default.DataVerifyOutputHeaderFormat,
+                DateTime.Now.ToShortDateString(), DateTime.Now.ToShortTimeString());
+            sb.AppendLine();
+
+            // create service
+            SheetsService service = null;
+            try
             {
-                try
+                service = GSheetsConnector.Connect();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Cannot create Sheets Service",
+                    StartFormMessages.Default.OperationAbortedTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(ex);
+                return;
+            }
+
+            // do the main job and write processing info file
+            try
+            {
+                // the main work
+                ControllerVerify.DoControll(service, operators, allRanges, sb);
+            }
+            catch (Exception ex)
+            {
+                // all exceptions are caught and logged into sb
+                // this is for some unexpected exception
+                MessageBox.Show(
+                    StartFormMessages.Default.UnexpectedExceptionHeader + ex.Message,
+                    StartFormMessages.Default.DataVerifyErrorTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(ex);
+                return;
+            }
+            finally
+            {
+                service.Dispose();
+                using (StreamWriter sw = new StreamWriter(outputFileName))
                 {
-                    StringBuilder sb = Controller1.FetchConvertVerify(service, operators, allRanges);
-                    sw.Write(sb);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "StartForm.btnVerifyDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                finally
-                {
-                    service.Dispose();
+                    try
+                    {
+                        sw.Write(sb);
+                    }
+                    catch (Exception wEx)
+                    {
+                        MessageBox.Show(
+                            string.Format(
+                                StartFormMessages.Default.UnableWriteVerifyInfoFile,
+                                outputFileName),
+                            StartFormMessages.Default.FileWriteErrorTitle,
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        LogWriter.Log(wEx);
+                    }
                 }
             }
-            MessageBox.Show("Atlikta.\nDabar bus atidarytas failas su išvardintomis problemomis.", 
-                "Task accomplished", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            MessageBox.Show(
+                StartFormMessages.Default.VerifyDoneMessage,
+                StartFormMessages.Default.TaskAccomplishedTitle,
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
             Process.Start(outputFileName);
+
             btnWriteData.Enabled = true;
         }
 
@@ -103,33 +172,104 @@ namespace Weldings
         {
             this.btnWriteData.Enabled = false;
 
-            // check if output folder exists; if not then create it
+
+            if (!File.Exists(Settings.Default.AccessDbPath))
+            {
+                string errorText = string.Format("DB file {0} not found!",
+                    Settings.Default.AccessDbPath);
+                MessageBox.Show(
+                    errorText,
+                    StartFormMessages.Default.OperationAbortedTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(errorText);
+                return;
+            }
+
             try
             {
                 checkOutputFolder();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Cannot create the output folder \"" + Settings.Default.OutputPath + "\". Try to create it manually.\n\n" + ex.Message, 
-                    "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format(
+                        StartFormMessages.Default.CannotCreateOutputFolder, Settings.Default.OutputPath),
+                    StartFormMessages.Default.CreateFolderErrorTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(ex);
+                return;
+            }
+
+            if (!dirIsWritable(Settings.Default.OutputPath))
+            {
+                string errorText = string.Format(
+                    "Output directory {0} is not writable",
+                    Settings.Default.OutputPath);
+                MessageBox.Show(
+                    errorText,
+                    StartFormMessages.Default.OperationAbortedTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(errorText);
                 return;
             }
 
             // create db backup
-            string dbBackupFileName = Path.Combine(Settings.Default.OutputPath, string.Format(Settings.Default.DBBackupFilenameFormat, DateTime.Now));
-            try
+            if (Settings.Default.CreateDBBackup)
             {
-                File.Copy(Settings.Default.AccessDbPath, dbBackupFileName, true);
+                string dbBackupFileName = createFileName(
+                    Settings.Default.DBBackupFilenameFormat,
+                    "DBBackupFilenameFormat",
+                    Path.GetExtension(Path.GetFileName(Settings.Default.AccessDbPath)));
+
+                if (dbBackupFileName == string.Empty)
+                {
+                    return;
+                }
+
+                try
+                {
+                    File.Copy(Settings.Default.AccessDbPath, dbBackupFileName, true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        string.Format(
+                            StartFormMessages.Default.UnableCreateDBCopy,
+                            Settings.Default.AccessDbPath,
+                            dbBackupFileName) + ex.Message,
+                        StartFormMessages.Default.FileCopyErrorTitle,
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LogWriter.Log(ex);
+                    return;
+                }
             }
-            catch(Exception ex)
+
+            Spreadsheets.Operator[] operators = SpreadsheetsData.Operators;
+            Spreadsheets.SheetsRanges allRanges = SpreadsheetsData.AllRanges;
+
+            string outputFileName = createFileName(
+                Settings.Default.DbUpdateFileNameFormat,
+                "DbUpdateFileNameFormat", ".txt");
+            if (outputFileName == string.Empty)
             {
-                MessageBox.Show("Unable to create database file copy: \n\tfrom: \"" + Settings.Default.AccessDbPath + "\"\n\tto: \"" + dbBackupFileName + "\"\n\n" + ex.Message,
-                    "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            // perform update
-            /* internal static void fetchConvertUpdate(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges) */
+            string reportFileName = createFileName(
+                Settings.Default.UpdateReportFileNameFormat,
+                "UpdateReportFileNameFormat", ".txt");
+            if (reportFileName == string.Empty)
+            {
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat(
+                StartFormMessages.Default.DataUpdateOutputHeaderFormat,
+                DateTime.Now.ToShortDateString(),
+                DateTime.Now.ToShortTimeString()).AppendLine();
+
+            // create service
             SheetsService service = null;
             try
             {
@@ -137,36 +277,63 @@ namespace Weldings
             }
             catch (Exception ex)
             {
-                MessageBox.Show("GSheetsConnector.Connect() failed: " + ex.Message, "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    ex.InnerException.Message,
+                    ex.Message,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(ex);
                 return;
             }
 
-            Spreadsheets.Operator[] operators = SpreadsheetsData.Operators;
-            Spreadsheets.SheetsRanges allRanges = SpreadsheetsData.AllRanges;
-
-            Controller2.fetchConvertUpdate(service, operators, allRanges);
-            service.Dispose();
-
-            // write all processing to file
-            string processingInfoFileName = getOutputFileName(Settings.Default.ProcessingInfoFileNameFormat, "processing info file");
-            if (processingInfoFileName == string.Empty) return;
-            using (StreamWriter sw = new StreamWriter(processingInfoFileName))
+            // do the main work and write processing info to file
+            try
             {
-                try
+                ControllerUpdate.DoControll(service, operators, allRanges, sb);
+            }
+            catch (DbUpdateException dbuEx)
+            {
+                MessageBox.Show(
+                    StartFormMessages.Default.RollbackFailureError,
+                    StartFormMessages.Default.OperationAbortedTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogWriter.Log(dbuEx);
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = StartFormMessages.Default.UnexpectedExceptionHeader + ex.Message;
+                MessageBox.Show(
+                    errorMessage,
+                    StartFormMessages.Default.UpdateErrorTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                sb.AppendLine(errorMessage);
+                LogWriter.Log(ex);
+            }
+            finally
+            {
+                service.Dispose();
+                using (StreamWriter sw = new StreamWriter(outputFileName))
                 {
-                    sw.Write(Controller2.GetProcessingResultInfo());
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Nepavyko įrašyti processing info failo į \"" + processingInfoFileName + "\"\n" + ex.Message,
-                        "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);                    
+                    try
+                    {
+                        sw.Write(sb);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            string.Format(
+                                StartFormMessages.Default.UnableWriteUpdateInfoFile,
+                                outputFileName)
+                                + ex.Message,
+                            StartFormMessages.Default.FileWriteErrorTitle,
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        LogWriter.Log(ex);
+                    }
                 }
             }
 
             // create report
-            StringBuilder sbReport = ReportCreator.CreateTxt(Controller2.GetAllProcessedInspections());
-            string reportFileName = getOutputFileName(Settings.Default.DbUpdateResultFileNameFormat, "db update result");
-            if (reportFileName == string.Empty) return;
+            StringBuilder sbReport = ReportCreator.CreateTxt(
+                ControllerUpdate.GetInspections());
             using (StreamWriter sw = new StreamWriter(reportFileName))
             {
                 try
@@ -175,21 +342,27 @@ namespace Weldings
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Nepavyko įrašyti db update result į \"" + reportFileName + "\"\n" + ex.Message,
-                        "StartForm.btnWriteDataClick Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(
+                        string.Format(
+                            StartFormMessages.Default.UnableWriteUpdateReportFile,
+                            reportFileName)
+                            + ex.Message,
+                        StartFormMessages.Default.FileWriteErrorTitle,
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LogWriter.Log(ex);
                     return;
                 }
             }
 
             // open processing info file name
-            Process.Start(processingInfoFileName);
+            Process.Start(outputFileName);
         }
 
         private void btnSelectDb_Click(object sender, EventArgs e)
         {
             openFileDialog.Filter = "MDB files (*.mdb)|*.mdb|ACCDB files (*.accdb)|*.accdb";
             openFileDialog.Multiselect = false;
-            openFileDialog.Title = "Select database file";
+            openFileDialog.Title = StartFormMessages.Default.OpenFileDialogTitle;
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 Settings.Default.AccessDbPath = openFileDialog.FileName;
@@ -200,7 +373,7 @@ namespace Weldings
 
         private void btnSelectOutputFolder_Click(object sender, EventArgs e)
         {
-            folderBrowserDialog.Description = "Select output folder";
+            folderBrowserDialog.Description = StartFormMessages.Default.SelectFolderDialogTitle;
             folderBrowserDialog.ShowNewFolderButton = true;
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
@@ -210,21 +383,32 @@ namespace Weldings
             }
         }
 
-        private string getOutputFileName(string format, string whatFile)
+        private string createFileName(string format, string whatFile, string extension = "")
         {
             string fn = string.Empty;
+            if (extension == "")
+            {
+                extension = StartFormMessages.Default.OutputFileExtension;
+            }
+
             try
             {
-                fn = Path.Combine(Settings.Default.OutputPath,
-                string.Format(format, DateTime.Now) + ".txt");
+                fn = Path.Combine(
+                    Settings.Default.OutputPath,
+                    string.Format(format, DateTime.Now, DateTime.Now) + extension
+                    );
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Bad " + whatFile + " file name format " + Settings.Default.DataVerifyFileNameFormat +
-                    "\n" + ex.Message,
-                    "Bad string format",
+                MessageBox.Show(
+                    string.Format(
+                        StartFormMessages.Default.BadFileNameFormatMessage,
+                        whatFile, format) + ex.Message,
+                    StartFormMessages.Default.BadStringFormatErrorTitle,
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Asterisk);
+                    MessageBoxIcon.Error);
+                LogWriter.Log(ex);
+                fn = string.Empty;
             }
             return fn;
         }
@@ -233,14 +417,23 @@ namespace Weldings
         {
             Settings.Default.DataVerifyFileNameFormat = txDataVerifyFNFormat.Text.Trim();
             Settings.Default.DBBackupFilenameFormat = txDbBackupFNFormat.Text.Trim();
-            Settings.Default.DbUpdateResultFileNameFormat = txDbUpdateFNFormat.Text.Trim();
+            Settings.Default.DbUpdateFileNameFormat = txDbUpdateInfoFNFormat.Text.Trim();
+            Settings.Default.UpdateReportFileNameFormat = txDbUpdateReportFNFormat.Text.Trim();
 
             Settings.Default.CheckDateIfReal = chbVerifyDate.Checked;
             Settings.Default.AllowedDayCount = Convert.ToInt32(nudDaysBefore.Value);
 
             Settings.Default.Ifas = txIFValue.Text.Trim();
+
+            Settings.Default.AbortOnFailedRollback = chbAbortFailedRollback.Checked;
+            Settings.Default.CreateDBBackup = chbBackupDB.Checked;
+            Settings.Default.ShowErrorMessages = chbVerbose.Checked;
+
             Settings.Default.Save();
-            MessageBox.Show("Settings saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(
+                StartFormMessages.Default.SettingsSavedMsg,
+                StartFormMessages.Default.SettingsSavedBoxTitle,
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void checkOutputFolder()
@@ -254,6 +447,50 @@ namespace Weldings
         private void btnCancel_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+
+        /// <summary>
+        /// Checks the ability to create and write to a file in the supplied directory.
+        /// </summary>
+        /// <param name="directory">String representing the directory path to check.</param>
+        /// <returns>True if successful; otherwise false.</returns>
+        private static bool dirIsWritable(string directory)
+        {
+            const string TEMP_FILE = "tempFile.tmp";
+            bool success = false;
+            string fullPath = Path.Combine(directory, TEMP_FILE);
+
+            if (Directory.Exists(directory))
+            {
+                try
+                {
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Create,
+                                                                    FileAccess.Write))
+                    {
+                        fs.WriteByte(0xff);
+                    }
+
+                    if (File.Exists(fullPath))
+                    {                        
+                        success = true;
+                        try
+                        {
+                            File.Delete(fullPath);
+                        }
+                        catch
+                        {
+                            // neleido ištrinti tmp, tai ir chuj s nim
+                        }
+                    }                    
+                }
+                catch (Exception)
+                {
+                    success = false;
+                }
+            }
+
+            return success;
         }
     }
 }

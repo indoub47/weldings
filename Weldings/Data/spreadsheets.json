@@ -19,45 +19,45 @@
   "allranges": {
     "pirmieji": {
       "sheetname": "Pirmieji tikrinimai",
-      "rangeaddress": "'Pirmieji tikrinimai'!A3:K",
-      "startrow": 3,
+      "rangeaddress": "'Pirmieji tikrinimai'!A2:K",
+      "startrow": 2,
       "filtercolumn": {
         "index": 10,
         "celladdressformat": "'Pirmieji tikrinimai'!K{0}"
       },
       "fieldmappings": [
-        "Linia",
-        "Kel",
-        "kilomrtras",
-        "piket",
-        "metras",
+        "linija",
+        "kelias",
+        "km",
+        "pk",
+        "m",
         "siule",
-        "saliginis kodas",
+        "salyginis_kodas",
         "suvirino",
-        "I_pat_data",
-        "I_pat_aparat",
+        "tikrinimo_data",
+        "aparatas",
         "ivesta_db"
       ]
     },
     "nepirmieji": {
       "sheetname": "Kiti tikrinimai",
-      "rangeaddress": "'Kiti tikrinimai'!A3:L",
-      "startrow": 3,
+      "rangeaddress": "'Kiti tikrinimai'!A2:L",
+      "startrow": 2,
       "filtercolumn": {
         "index": 11,
         "celladdressformat": "'Kiti tikrinimai'!L{0}"
       },
       "fieldmappings": [
-        "number",
-        "Linia",
-        "Kel",
-        "kilomrtras",
-        "piket",
-        "metras",
+        "id",
+        "linija",
+        "kelias",
+        "km",
+        "pk",
+        "m",
         "siule",
-        "saliginis kodas",
+        "salyginis_kodas",
         "tikrinimo_data",
-        "tikrinimo_aparatas",
+        "aparatas",
         "kelintas_tikrinimas",
         "ivesta_db"
       ]

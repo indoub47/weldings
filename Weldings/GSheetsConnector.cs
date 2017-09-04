@@ -5,41 +5,75 @@ using Google.Apis.Util.Store;
 using System.IO;
 using System.Threading;
 using System.Net;
-
+using System;
 
 namespace Weldings
 {
-    internal static class GSheetsConnector
+    public static class GSheetsConnector
     {
         // If modifying these scopes, delete your previously saved credentials
         // at ~/.credentials/sheets.googleapis.com-dotnet-quickstart.json
         static string[] Scopes = { SheetsService.Scope.Spreadsheets };
 
-        internal static SheetsService Connect()
+        public static SheetsService Connect()
         {
             UserCredential credential;
 
-            using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream(Properties.Settings.Default.ClientSecretFile, FileMode.Open, FileAccess.Read))
             {
                 string credPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
-                credPath = Path.Combine(credPath, ".credentials/sheets.googleapis.com-dotnet.json");
+                credPath = Path.Combine(credPath, Properties.Settings.Default.CredentialDir);
 
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-                // Logger.log("Credential file saved to: " + credPath);
-                    
+                ClientSecrets secrets = null;
+                try
+                {
+                    secrets = GoogleClientSecrets.Load(stream).Secrets;
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception("GoogleClientSecrets.Load(stream) error", ex);
+                }
+
+                try
+                {
+                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                        secrets, // GoogleClientSecrets.Load(stream).Secrets,
+                        Scopes,
+                        "user",
+                        CancellationToken.None,
+                        new FileDataStore(credPath, true)).Result;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("GoogleWebAuthorizationBroker.AuthorizeAsync() error", ex);
+                }
+                LogWriter.Log("Credential file saved to: " + credPath);                    
             }
 
             // Create Google Sheets API service.
-            var service = new SheetsService(new BaseClientService.Initializer()
+            BaseClientService.Initializer initializer;
+            try
             {
-                HttpClientInitializer = credential,
-                ApplicationName = Properties.Settings.Default.ApplicationName,
-            });
+                initializer = new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = credential,
+                    ApplicationName = Properties.Settings.Default.ApplicationName,
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("new BaseClientService.Initializer() error", ex);
+            }
+
+            SheetsService service;
+            try
+            {
+                service = new SheetsService(initializer);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("new SheetsService() error", ex);
+            }
 
             return service;
         }

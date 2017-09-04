@@ -1,0 +1,78 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Weldings.Properties" GeneratedClassName="StartFormMessages">
+  <Profiles />
+  <Settings>
+    <Setting Name="CannotCreateOutputFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Cannot create the output folder  "{0}". Try to create it manually.\n</Value>
+    </Setting>
+    <Setting Name="CreateFolderErrorTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Create Folder Error</Value>
+    </Setting>
+    <Setting Name="DataVerifyOutputHeaderFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Verifying {0}, {1}</Value>
+    </Setting>
+    <Setting Name="UnexpectedExceptionHeader" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Unexpected exception: </Value>
+    </Setting>
+    <Setting Name="DataVerifyErrorTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Verify Error</Value>
+    </Setting>
+    <Setting Name="VerifyDoneMessage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Tikrinimas atliktas. Dabar bus atidarytas failas su tikrinimo eiga ir išvardintomis problemomis.</Value>
+    </Setting>
+    <Setting Name="TaskAccomplishedTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Task Accomplished</Value>
+    </Setting>
+    <Setting Name="UnableCreateDBCopy" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Unable to create database file copy: \n\tfrom: "{0}"\n\tto: "{1}"\n\n</Value>
+    </Setting>
+    <Setting Name="FileCopyErrorTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">File Copy Error</Value>
+    </Setting>
+    <Setting Name="DataUpdateOutputHeaderFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Updating {0}, {1}</Value>
+    </Setting>
+    <Setting Name="RollbackFailureError" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Operation aborted after rollback failure of unusuccessful update transaction</Value>
+    </Setting>
+    <Setting Name="OperationAbortedTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Operation Aborted</Value>
+    </Setting>
+    <Setting Name="UpdateErrorTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DB Update Error</Value>
+    </Setting>
+    <Setting Name="UnableWriteUpdateInfoFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Nepavyko įrašyti informacijos apie update procesą į "{0}"\n</Value>
+    </Setting>
+    <Setting Name="FileWriteErrorTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">File Write Error</Value>
+    </Setting>
+    <Setting Name="UnableWriteVerifyInfoFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Nepavyko įrašyti informacijos apie verify procesą į "{0}"\n</Value>
+    </Setting>
+    <Setting Name="UnableWriteUpdateReportFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Nepavyko įrašyti update suvestinės į "{0}"\n</Value>
+    </Setting>
+    <Setting Name="OpenFileDialogTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Select database file</Value>
+    </Setting>
+    <Setting Name="SelectFolderDialogTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Select output folder</Value>
+    </Setting>
+    <Setting Name="BadFileNameFormatMessage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Bad {0} file name format "{1}"\n</Value>
+    </Setting>
+    <Setting Name="BadStringFormatErrorTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Bad String Format</Value>
+    </Setting>
+    <Setting Name="OutputFileExtension" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.txt</Value>
+    </Setting>
+    <Setting Name="SettingsSavedMsg" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Settings saved</Value>
+    </Setting>
+    <Setting Name="SettingsSavedBoxTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Operation Success</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

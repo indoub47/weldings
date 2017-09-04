@@ -1,0 +1,57 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Weldings.Properties" GeneratedClassName="Messages">
+  <Profiles />
+  <Settings>
+    <Setting Name="RepeatedRecordsHeader" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Pasikartojantys suvirinimai: </Value>
+    </Setting>
+    <Setting Name="OperSheetFrmt" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Operatorius: {0}, lentelė: "{1}". </Value>
+    </Setting>
+    <Setting Name="GSDataFetchFail" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Google Sheets data fetch FAIL</Value>
+    </Setting>
+    <Setting Name="VerifyOperationErrorMsgTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Verify Operation Error</Value>
+    </Setting>
+    <Setting Name="BadGSData" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Yra blogų duomenų Google Sheets</Value>
+    </Setting>
+    <Setting Name="GSDataConvertFail" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Nepavyksta Google Sheets lentelės duomenų paversti tinkamais įrašyti į DB</Value>
+    </Setting>
+    <Setting Name="GSDataVerifyResult" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Google Sheets duomenų patikrinimo rezultatas: </Value>
+    </Setting>
+    <Setting Name="GSUpdateFailInstruction" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DĖMESIO! Kadangi duomenys į duomenų bazę sukelti, tie duomenys bus įtraukti į ataskaitą, kaip sutvarkyti. TAČIAU Google Sheets lentelę reikėtų sutvarkyti rankiniu būdu - prisijungti prie Google Sheets, atsidaryti lentelę ir joje pažymėti, kurie duomenys yra sukelti į DB.</Value>
+    </Setting>
+    <Setting Name="GSUpdateFail" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Google Sheets update FAIL</Value>
+    </Setting>
+    <Setting Name="GSUpdateOK" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Google Sheets update OK</Value>
+    </Setting>
+    <Setting Name="DBUpdateOK" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DB update OK</Value>
+    </Setting>
+    <Setting Name="DBUpdateFailTransOK" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DB update FAIL, transaction rollback OK</Value>
+    </Setting>
+    <Setting Name="DBUpdateFailTransFail" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DB update FAIL, transaction rollback FAIL</Value>
+    </Setting>
+    <Setting Name="FailureInfo" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Failure info: </Value>
+    </Setting>
+    <Setting Name="GSDataVerifyFail" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Google Sheets data verify FAIL</Value>
+    </Setting>
+    <Setting Name="GSDataVerifyOK" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Google Sheets data verify OK</Value>
+    </Setting>
+    <Setting Name="UpdateOperationErrorMsgTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DB Update Operation Error</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

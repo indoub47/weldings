@@ -69,17 +69,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controller2.cs" />
-    <Compile Include="Controller1.cs" />
+    <Compile Include="BadData.cs" />
+    <Compile Include="BadDataException.cs" />
+    <Compile Include="BadDataReportCreator.cs" />
+    <Compile Include="ControllerUpdate.cs" />
+    <Compile Include="ControllerVerify.cs" />
     <Compile Include="DbBackupCreator.cs" />
+    <Compile Include="DbUpdateExceptions.cs" />
     <Compile Include="DBUpdater.cs" />
     <Compile Include="GSheetsUpdater.cs" />
+    <Compile Include="LogWriter.cs" />
     <Compile Include="ObjectVerifier.cs" />
     <Compile Include="GSheetsConnector.cs" />
+    <Compile Include="Properties\Messages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Messages.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\StartFormMessages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>StartFormMessages.settings</DependentUpon>
+    </Compile>
     <Compile Include="RepeatFinder.cs" />
     <Compile Include="ReportCreator.cs" />
     <Compile Include="SheetDataFetcher.cs" />
     <Compile Include="DataConverter.cs" />
+    <Compile Include="SheetType.cs" />
     <Compile Include="Spreadsheets.cs" />
     <Compile Include="StartForm.cs">
       <SubType>Form</SubType>
@@ -109,6 +125,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="Properties\Messages.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -118,6 +138,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Properties\StartFormMessages.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>StartFormMessages.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

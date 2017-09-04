@@ -10,9 +10,9 @@ using Google.Apis.Util.Store;
 
 namespace Weldings
 {
-    internal static class GSheetsUpdater
+    public static class GSheetsUpdater
     {
-        internal static BatchUpdateValuesResponse BatchUpdateSheet(
+        public static BatchUpdateValuesResponse BatchUpdateSheet(
             string spreadsheetId, 
             Spreadsheets.SheetsRanges.SheetRangeData rangeData, 
             SheetsService service)

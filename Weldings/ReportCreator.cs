@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Weldings
 {
-    internal static class ReportCreator
+    public static class ReportCreator
     {
-        internal static StringBuilder CreateTxt(List<WeldingInspection>lsWeldingInspections)
+        public static StringBuilder CreateTxt(List<WeldingInspection>lsWeldingInspections)
         {
             IEnumerable<WeldingInspection> wiList = lsWeldingInspections;
             StringBuilder sb = new StringBuilder(DateTime.Now.ToShortDateString() + ", " + DateTime.Now.ToShortTimeString()).AppendLine();
@@ -50,7 +50,7 @@ namespace Weldings
                             {
                                 foreach (var a6 in a5.GrByKelintasTikrinimas)
                                 {
-                                    sb.AppendLine("\t\t\t" + a6.VietosKodas + " - " + a4.SalygKodas + " - " + a5.KelintasTikrinimas);
+                                    sb.AppendLine("\t\t\t" + a4.SalygKodas + " - " + a5.KelintasTikrinimas + " - " +  a6.VietosKodas);
                                 }
                             }
                         }

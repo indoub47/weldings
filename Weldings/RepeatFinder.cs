@@ -8,9 +8,9 @@ namespace Weldings
 {
     // TODO: sužinoti, kaip nustatyti grąžinamą tipą iš linq ir atskirti grupavimą-filtravimą nuo prezentacijos.
     // Prezentaciją atiduoti klientui (Controller1)
-    internal static class RepeatFinder
+    public static class RepeatFinder
     {
-        internal static StringBuilder FindRepeats(List<WeldingInspection> wiList)
+        public static StringBuilder FindRepeats(List<WeldingInspection> wiList)
         {
             var gr = wiList.OrderBy(x => x.VietosKodas).GroupBy(x => x.VietosKodas, (key, group) => new
             {

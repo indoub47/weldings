@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Weldings
 {
-    internal static class DbBackupCreator
+    public static class DbBackupCreator
     {
         private static string targetFileName()
         {

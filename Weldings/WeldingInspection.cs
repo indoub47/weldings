@@ -6,108 +6,58 @@ using System.Threading.Tasks;
 
 namespace Weldings
 {
-    internal enum Kelintas { I, II, III, IV, papildomas }
+    public enum Kelintas { I, II, III, IV, papildomas }
     // TODO: ką daryti su Pak_suv_data
     // TODO: galimus operatorius ir defektoskopus (ir patikrinimus?) surašyti į Settings kaip comma separated things ir parsinti prieš patikrinant
-    internal class WeldingInspection
+    public class WeldingInspection
     {
-        internal long? Id { private set; get; }
-        internal string Linija { private set; get; }
-        internal int Kelias { private set; get; }
-        internal int Km { private set; get; }
-        internal int? Pk { private set; get; }
-        internal int? M { private set; get; }
-        internal int? Siule { private set; get; }
-        internal int? Nr { private set; get; }
-        internal string SalygKodas { private set; get; }
-        internal string Operatorius { private set; get; }
-        internal string Aparatas { private set; get; }
-        internal DateTime TikrinimoData { private set; get; }
-        internal string Suvirino { private set; get; }
-        internal string Ifas { private set; get; }
-        internal string Pastaba { private set; get; }
-        internal long? DefektoId { private set; get; }
-        internal Kelintas KelintasTikrinimas { private set; get; }
+        public long? Id { private set; get; }
+        public string Linija { private set; get; }
+        public int Kelias { private set; get; }
+        public int Km { private set; get; }
+        public int? Pk { private set; get; }
+        public int M { private set; get; }
+        public int? Siule { private set; get; }
+        public int? Nr { private set; get; }
+        public string SalygKodas { private set; get; }
+        public string Operatorius { private set; get; }
+        public string Aparatas { private set; get; }
+        public DateTime TikrinimoData { private set; get; }
+        public string Suvirino { private set; get; }
+        public Kelintas KelintasTikrinimas { private set; get; }
+        public string Pastaba { private set; get; }
 
-        internal WeldingInspection()
+        public WeldingInspection(
+            long? id,
+            string linija, int kelias, int km, int? pk, int m, int? siule, string salygKodas,
+            string operatorius, string aparatas, DateTime data, string suvirino,
+            Kelintas kelintasTikrinimas, string pastaba = "")
         {
-            // startinis konstruktorius, įrašantis default reikšmes
-            this.Pastaba = "";
-        }
-
-        internal WeldingInspection(
-            string linija, int kelias, int km, int? pk, int? m, int? siule, string salygKodas,
-            string operatorius, string aparatas, DateTime data, 
-            string pastaba, long? defektoId,
-            Kelintas kelintasTikrinimas):this()
-        {
-            // minimalus konstruktorius
-            this.Id = null;
+            this.Id = id;
             this.Linija = linija;
             this.Kelias = kelias;
             this.Km = km;
             this.Pk = pk;
             this.M = m;
+            this.Siule = siule;
             if (this.Kelias == 8 || this.Kelias == 9)
-                if (this.M != null)
-                    if (this.Siule != null)
-                        throw new Exception("Suvirinimas iešme, bet nurodyta siūlė - operatorius " + operatorius + ", pirmieji tikrinimai.");
-                    else
-                    {
-                        this.Nr = this.M;
-                        this.Siule = null;
-                    }
-                else
-                    throw new Exception("Suvirinimas iešme, bet metrų pozicijoje neįrašytas suvirinimo numeris - operatorius " + operatorius + ", pirmieji tikrinimai.");
+            {
+                this.Nr = this.M;
+            }
             else
             {
                 this.Nr = null;
-                this.Siule = siule;
             }
             this.SalygKodas = salygKodas;
             this.Operatorius = operatorius;
             this.Aparatas = aparatas;
             this.TikrinimoData = data;
-            this.Suvirino = null;
-            this.Ifas = null;
-            this.Pastaba = pastaba;
-            this.DefektoId = defektoId;
-            this.KelintasTikrinimas = kelintasTikrinimas;
-        }
-
-        internal WeldingInspection(
-            long id,
-            string linija, int kelias, int km, int? pk, int? m, int? siule, string salygKodas, 
-            string operatorius, string aparatas, DateTime data,
-            bool panaikintas, string pastaba, long? defektoId,
-            Kelintas kelintasTikrinimas)
-            : this(linija, kelias, km, pk, m, siule, salygKodas, operatorius, aparatas, data, pastaba, defektoId, kelintasTikrinimas)
-        {
-            // ne pirmas tikrinimas
-            if (kelintasTikrinimas == Kelintas.I)
-            {
-                throw new Exception("Nurodytas suvirinimo ID, bet pažymėtas kaip pirmasis tikrinimas - operatorius " + operatorius + ", pirmieji tikrinimai.");
-            }
-            this.Id = id;
-            if (kelintasTikrinimas == Kelintas.papildomas)
-            {
-                this.Pastaba += string.Format(Properties.Settings.Default.PapildomoPastaba, operatorius, aparatas, data);
-            }
-        }
-
-        internal WeldingInspection(
-            string linija, int kelias, int km, int? pk, int? m, int? siule, string salygKodas, 
-            string operatorius, string aparatas, DateTime data, 
-            string suvirino, string ifas,
-            bool panaikintas, string pastaba, long? defektoId)
-            : this(linija, kelias, km, pk, m, siule, salygKodas, operatorius, aparatas, data, pastaba, defektoId, Kelintas.I)
-        {
-            // pirmas
             this.Suvirino = suvirino;
-            this.Ifas = ifas;
+            this.KelintasTikrinimas = kelintasTikrinimas;
+            this.Pastaba = pastaba;
         }
 
-        internal string VietosKodas
+        public string VietosKodas
         {
             get
             {
@@ -115,7 +65,7 @@ namespace Weldings
             }
         }
 
-        internal bool SameVietaAs(WeldingInspection other)
+        public bool SameVietaAs(WeldingInspection other)
         {
             return Linija == other.Linija &&
                 Kelias == other.Kelias &&

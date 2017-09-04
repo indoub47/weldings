@@ -9,11 +9,11 @@ using Weldings.Properties;
 
 namespace Weldings
 {
-    internal static class DBUpdater
+    public static class DBUpdater
     {
-        internal static int DoPirmieji(List<WeldingInspection> wiList)
+        public static int DoPirmieji(List<WeldingInspection> wiList)
         {
-            int count=0;
+            int count;
             using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
             {
                 OleDbTransaction trans = null;
@@ -29,19 +29,15 @@ namespace Weldings
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
                     try
                     {
                         // Attempt to roll back the transaction.
                         trans.Rollback();
+                        throw new DbUpdateException(Messages.Default.DBUpdateFailTransOK, ex, true, SheetType.pirmieji);
                     }
                     catch
                     {
-                        // Do nothing here; transaction is not active.
-                    }
-                    finally
-                    {
-                        count = -1;
+                        throw new DbUpdateException(Messages.Default.DBUpdateFailTransFail, ex, false, SheetType.pirmieji);
                     }
                 }
             }
@@ -50,8 +46,8 @@ namespace Weldings
 
         private static int InsertPirmieji(List<WeldingInspection> inspectionList, OleDbCommand cmd)
         {
-            string sql = "INSERT INTO ssd (Linia, Kel, kilomrtras, piket, metras, siule, [saliginis kodas], suv_numer, suvirino, IFas, Pak_suv_data, I_pat_data, I_pat_aparat, I_pat_operator, Pastaba, DefektoId) "
-            + "VALUES (@Linia, @Kel, @kilomrtras, @piket, @metras, @siule, @saliginis_kodas, @suv_numer, @suvirino, @IFas, @Pak_suv_data, @I_pat_data, @I_pat_aparat, @I_pat_operator, @Pastaba, @DefektoId)";
+            string sql = "INSERT INTO ssd (Linia, Kel, kilomrtras, piket, metras, siule, [saliginis kodas], suv_numer, suvirino, IFas, Pak_suv_data, I_pat_data, I_pat_aparat, I_pat_operator, Pastaba) "
+            + "VALUES (@Linia, @Kel, @kilomrtras, @piket, @metras, @siule, @saliginis_kodas, @suv_numer, @suvirino, @IFas, @Pak_suv_data, @I_pat_data, @I_pat_aparat, @I_pat_operator, @Pastaba)";
             cmd.CommandText = sql;
             int count = 0;
             if (inspectionList.Count == 0) return count;
@@ -67,13 +63,12 @@ namespace Weldings
                 cmd.Parameters.AddWithValue("@saliginis_kodas", wi.SalygKodas);
                 AddNullableParam(cmd.Parameters, wi.Nr, "@suv_numer");
                 cmd.Parameters.AddWithValue("@suvirino", wi.Suvirino);
-                cmd.Parameters.AddWithValue("@IFas", wi.Ifas);
+                cmd.Parameters.AddWithValue("@IFas", Settings.Default.Ifas);
                 cmd.Parameters.AddWithValue("@Pak_suv_data", wi.TikrinimoData);
                 cmd.Parameters.AddWithValue("@I_pat_data", wi.TikrinimoData);
                 cmd.Parameters.AddWithValue("@I_pat_aparat", wi.Aparatas);
                 cmd.Parameters.AddWithValue("@I_pat_operator", wi.Operatorius);
                 cmd.Parameters.AddWithValue("@Pastaba", wi.Pastaba);
-                AddNullableParam(cmd.Parameters, wi.DefektoId, "@DefektoId");
 
                 count += cmd.ExecuteNonQuery();
             }
@@ -81,9 +76,9 @@ namespace Weldings
         }
         
 
-        internal static int DoNepirmieji(List<WeldingInspection> wiList)
+        public static int DoNepirmieji(List<WeldingInspection> wiList)
         {
-            int count = 0;
+            int count;
             using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
             {
                 OleDbTransaction trans = null;
@@ -103,11 +98,11 @@ namespace Weldings
                     {
                         // Attempt to roll back the transaction.
                         trans.Rollback();
-                        throw new Exception("Transaction rolled back.", ex);
+                        throw new DbUpdateException(Messages.Default.DBUpdateFailTransOK, ex, true, SheetType.nepirmieji);
                     }
                     catch
                     {
-                        throw new Exception("Transaction didn't rolled back. ", ex);
+                        throw new DbUpdateException(Messages.Default.DBUpdateFailTransFail, ex, false, SheetType.nepirmieji);
                     }
                 }
             }
@@ -163,7 +158,7 @@ namespace Weldings
             return count;
         }
 
-        internal static void AddNullableParam(OleDbParameterCollection parameters, long? value, string paramName)
+        public static void AddNullableParam(OleDbParameterCollection parameters, long? value, string paramName)
         {
             if (value == null) parameters.AddWithValue(paramName, DBNull.Value);
             else parameters.AddWithValue(paramName, value);

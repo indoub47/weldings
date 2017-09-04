@@ -121,7 +121,7 @@ namespace Weldings.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("db_backup {0:yyyy-MM-dd H-mm-ss}")]
+        [global::System.Configuration.DefaultSettingValueAttribute("db_backup {0:yyyy-MM-dd} {1:H-mm-ss}")]
         public string DBBackupFilenameFormat {
             get {
                 return ((string)(this["DBBackupFilenameFormat"]));
@@ -157,7 +157,7 @@ namespace Weldings.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("data_verify {0:yyyy-MM-dd H-mm-ss}")]
+        [global::System.Configuration.DefaultSettingValueAttribute("data_verify_info {0:yyyy-MM-dd} {1:H-mm-ss}")]
         public string DataVerifyFileNameFormat {
             get {
                 return ((string)(this["DataVerifyFileNameFormat"]));
@@ -169,13 +169,13 @@ namespace Weldings.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("db_update {0:yyyy-MM-dd H-mm-ss}")]
-        public string DbUpdateResultFileNameFormat {
+        [global::System.Configuration.DefaultSettingValueAttribute("db_update_info {0:yyyy-MM-dd} {1:H-mm-ss}")]
+        public string DbUpdateFileNameFormat {
             get {
-                return ((string)(this["DbUpdateResultFileNameFormat"]));
+                return ((string)(this["DbUpdateFileNameFormat"]));
             }
             set {
-                this["DbUpdateResultFileNameFormat"] = value;
+                this["DbUpdateFileNameFormat"] = value;
             }
         }
         
@@ -193,13 +193,13 @@ namespace Weldings.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("processing_info {0:yyyy-MM-dd H-mm-ss}")]
-        public string ProcessingInfoFileNameFormat {
+        [global::System.Configuration.DefaultSettingValueAttribute("db_update_report {0:yyyy-MM-dd} {1:H-mm-ss}")]
+        public string UpdateReportFileNameFormat {
             get {
-                return ((string)(this["ProcessingInfoFileNameFormat"]));
+                return ((string)(this["UpdateReportFileNameFormat"]));
             }
             set {
-                this["ProcessingInfoFileNameFormat"] = value;
+                this["UpdateReportFileNameFormat"] = value;
             }
         }
         
@@ -224,6 +224,78 @@ namespace Weldings.Properties {
             }
             set {
                 this["Port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("client_secret.json")]
+        public string ClientSecretFile {
+            get {
+                return ((string)(this["ClientSecretFile"]));
+            }
+            set {
+                this["ClientSecretFile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(".credentials/sheets.googleapis.com-dotnet.json")]
+        public string CredentialDir {
+            get {
+                return ((string)(this["CredentialDir"]));
+            }
+            set {
+                this["CredentialDir"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AbortOnFailedRollback {
+            get {
+                return ((bool)(this["AbortOnFailedRollback"]));
+            }
+            set {
+                this["AbortOnFailedRollback"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowErrorMessages {
+            get {
+                return ((bool)(this["ShowErrorMessages"]));
+            }
+            set {
+                this["ShowErrorMessages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CreateDBBackup {
+            get {
+                return ((bool)(this["CreateDBBackup"]));
+            }
+            set {
+                this["CreateDBBackup"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("log.txt")]
+        public string LogFileName {
+            get {
+                return ((string)(this["LogFileName"]));
+            }
+            set {
+                this["LogFileName"] = value;
             }
         }
     }

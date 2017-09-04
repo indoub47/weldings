@@ -49,7 +49,7 @@
             this.nudDaysBefore = new System.Windows.Forms.NumericUpDown();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label11 = new System.Windows.Forms.Label();
-            this.txDbUpdateFNFormat = new System.Windows.Forms.TextBox();
+            this.txDbUpdateInfoFNFormat = new System.Windows.Forms.TextBox();
             this.txDbBackupFNFormat = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -61,6 +61,11 @@
             this.txIFValue = new System.Windows.Forms.TextBox();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.chbAbortFailedRollback = new System.Windows.Forms.CheckBox();
+            this.chbBackupDB = new System.Windows.Forms.CheckBox();
+            this.chbVerbose = new System.Windows.Forms.CheckBox();
+            this.txDbUpdateReportFNFormat = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.tabMain.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabMore.SuspendLayout();
@@ -77,7 +82,7 @@
             this.tabMain.Location = new System.Drawing.Point(0, 0);
             this.tabMain.Name = "tabMain";
             this.tabMain.SelectedIndex = 0;
-            this.tabMain.Size = new System.Drawing.Size(460, 305);
+            this.tabMain.Size = new System.Drawing.Size(460, 424);
             this.tabMain.TabIndex = 8;
             // 
             // tabPage1
@@ -185,6 +190,9 @@
             // 
             // tabMore
             // 
+            this.tabMore.Controls.Add(this.chbVerbose);
+            this.tabMore.Controls.Add(this.chbBackupDB);
+            this.tabMore.Controls.Add(this.chbAbortFailedRollback);
             this.tabMore.Controls.Add(this.btnSaveSettings);
             this.tabMore.Controls.Add(this.groupBox2);
             this.tabMore.Controls.Add(this.groupBox1);
@@ -195,14 +203,14 @@
             this.tabMore.Location = new System.Drawing.Point(4, 22);
             this.tabMore.Name = "tabMore";
             this.tabMore.Padding = new System.Windows.Forms.Padding(3);
-            this.tabMore.Size = new System.Drawing.Size(452, 279);
+            this.tabMore.Size = new System.Drawing.Size(452, 398);
             this.tabMore.TabIndex = 1;
             this.tabMore.Text = "More Options";
             this.tabMore.UseVisualStyleBackColor = true;
             // 
             // btnSaveSettings
             // 
-            this.btnSaveSettings.Location = new System.Drawing.Point(345, 230);
+            this.btnSaveSettings.Location = new System.Drawing.Point(345, 365);
             this.btnSaveSettings.Name = "btnSaveSettings";
             this.btnSaveSettings.Size = new System.Drawing.Size(97, 23);
             this.btnSaveSettings.TabIndex = 19;
@@ -216,7 +224,7 @@
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.nudDaysBefore);
-            this.groupBox2.Location = new System.Drawing.Point(6, 138);
+            this.groupBox2.Location = new System.Drawing.Point(6, 162);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(436, 66);
             this.groupBox2.TabIndex = 18;
@@ -273,8 +281,10 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.txDbUpdateReportFNFormat);
+            this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.label11);
-            this.groupBox1.Controls.Add(this.txDbUpdateFNFormat);
+            this.groupBox1.Controls.Add(this.txDbUpdateInfoFNFormat);
             this.groupBox1.Controls.Add(this.txDbBackupFNFormat);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.label7);
@@ -282,7 +292,7 @@
             this.groupBox1.Controls.Add(this.txDataVerifyFNFormat);
             this.groupBox1.Location = new System.Drawing.Point(6, 6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(436, 126);
+            this.groupBox1.Size = new System.Drawing.Size(436, 150);
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "File name formats";
@@ -290,18 +300,18 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(66, 101);
+            this.label11.Location = new System.Drawing.Point(66, 126);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(302, 13);
             this.label11.TabIndex = 12;
             this.label11.Text = "yyyy-year, MM-month, dd-day, H-hour, mm-minutes, ss-seconds";
             // 
-            // txDbUpdateFNFormat
+            // txDbUpdateInfoFNFormat
             // 
-            this.txDbUpdateFNFormat.Location = new System.Drawing.Point(145, 71);
-            this.txDbUpdateFNFormat.Name = "txDbUpdateFNFormat";
-            this.txDbUpdateFNFormat.Size = new System.Drawing.Size(285, 20);
-            this.txDbUpdateFNFormat.TabIndex = 11;
+            this.txDbUpdateInfoFNFormat.Location = new System.Drawing.Point(145, 97);
+            this.txDbUpdateInfoFNFormat.Name = "txDbUpdateInfoFNFormat";
+            this.txDbUpdateInfoFNFormat.Size = new System.Drawing.Size(285, 20);
+            this.txDbUpdateInfoFNFormat.TabIndex = 11;
             // 
             // txDbBackupFNFormat
             // 
@@ -313,7 +323,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(18, 74);
+            this.label8.Location = new System.Drawing.Point(18, 100);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(88, 13);
             this.label8.TabIndex = 10;
@@ -346,7 +356,7 @@
             // 
             // txJSONPath
             // 
-            this.txJSONPath.Location = new System.Drawing.Point(125, 245);
+            this.txJSONPath.Location = new System.Drawing.Point(125, 269);
             this.txJSONPath.Name = "txJSONPath";
             this.txJSONPath.ReadOnly = true;
             this.txJSONPath.Size = new System.Drawing.Size(214, 20);
@@ -355,7 +365,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(28, 248);
+            this.label10.Location = new System.Drawing.Point(28, 272);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(91, 13);
             this.label10.TabIndex = 14;
@@ -364,7 +374,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(8, 222);
+            this.label5.Location = new System.Drawing.Point(8, 246);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(111, 13);
             this.label5.TabIndex = 5;
@@ -372,7 +382,7 @@
             // 
             // txIFValue
             // 
-            this.txIFValue.Location = new System.Drawing.Point(125, 219);
+            this.txIFValue.Location = new System.Drawing.Point(125, 243);
             this.txIFValue.Name = "txIFValue";
             this.txIFValue.Size = new System.Drawing.Size(214, 20);
             this.txIFValue.TabIndex = 4;
@@ -382,11 +392,57 @@
             // 
             this.openFileDialog.FileName = "openFileDialog1";
             // 
+            // chbAbortFailedRollback
+            // 
+            this.chbAbortFailedRollback.AutoSize = true;
+            this.chbAbortFailedRollback.Location = new System.Drawing.Point(12, 305);
+            this.chbAbortFailedRollback.Name = "chbAbortFailedRollback";
+            this.chbAbortFailedRollback.Size = new System.Drawing.Size(189, 17);
+            this.chbAbortFailedRollback.TabIndex = 20;
+            this.chbAbortFailedRollback.Text = "Abort on failed transaction rollback";
+            this.chbAbortFailedRollback.UseVisualStyleBackColor = true;
+            // 
+            // chbBackupDB
+            // 
+            this.chbBackupDB.AutoSize = true;
+            this.chbBackupDB.Location = new System.Drawing.Point(12, 328);
+            this.chbBackupDB.Name = "chbBackupDB";
+            this.chbBackupDB.Size = new System.Drawing.Size(99, 17);
+            this.chbBackupDB.TabIndex = 21;
+            this.chbBackupDB.Text = "Backup the DB";
+            this.chbBackupDB.UseVisualStyleBackColor = true;
+            // 
+            // chbVerbose
+            // 
+            this.chbVerbose.AutoSize = true;
+            this.chbVerbose.Location = new System.Drawing.Point(12, 351);
+            this.chbVerbose.Name = "chbVerbose";
+            this.chbVerbose.Size = new System.Drawing.Size(186, 17);
+            this.chbVerbose.TabIndex = 22;
+            this.chbVerbose.Text = "Verbose - show all error messages";
+            this.chbVerbose.UseVisualStyleBackColor = true;
+            // 
+            // txDbUpdateReportFNFormat
+            // 
+            this.txDbUpdateReportFNFormat.Location = new System.Drawing.Point(145, 71);
+            this.txDbUpdateReportFNFormat.Name = "txDbUpdateReportFNFormat";
+            this.txDbUpdateReportFNFormat.Size = new System.Drawing.Size(285, 20);
+            this.txDbUpdateReportFNFormat.TabIndex = 14;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(18, 74);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(88, 13);
+            this.label9.TabIndex = 13;
+            this.label9.Text = "DB update report";
+            // 
             // StartForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(460, 305);
+            this.ClientSize = new System.Drawing.Size(460, 424);
             this.Controls.Add(this.tabMain);
             this.Name = "StartForm";
             this.Text = "Process Welding Data";
@@ -427,7 +483,7 @@
         private System.Windows.Forms.NumericUpDown nudDaysBefore;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox txDbUpdateFNFormat;
+        private System.Windows.Forms.TextBox txDbUpdateInfoFNFormat;
         private System.Windows.Forms.TextBox txDbBackupFNFormat;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
@@ -440,6 +496,11 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
+        private System.Windows.Forms.CheckBox chbVerbose;
+        private System.Windows.Forms.CheckBox chbBackupDB;
+        private System.Windows.Forms.CheckBox chbAbortFailedRollback;
+        private System.Windows.Forms.TextBox txDbUpdateReportFNFormat;
+        private System.Windows.Forms.Label label9;
     }
 }
 

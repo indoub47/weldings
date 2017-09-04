@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace Weldings
 {
-    internal static class Controller1
+    public static class Controller1
     {
         // Fetch data from Google Sheets
         // Try to convert it to WeldingInspections
@@ -21,7 +21,7 @@ namespace Weldings
         // Inform user about problems
 
         private delegate List<WeldingInspection> ConvertDataToListMethod(List<IList<Object>> data, string[] mapping, string operId);
-        private delegate StringBuilder VerifyObjectsMethod(List<WeldingInspection> inspectionList);
+        private delegate List<BadData> VerifyObjectsMethod(List<WeldingInspection> inspectionList, string operId);
         private delegate int DbUpdateMethod(List<WeldingInspection> inspectionList);
 
         // kaupiami visi patikrinimai tam, kad b8t7 galima pagauti, jeigu tą patį suvirinimą tikrina du kartus
@@ -41,7 +41,8 @@ namespace Weldings
                 service).ToList();
             List<WeldingInspection> inspectionList = convertMethod(data, rangeData.FieldMappings, operatorData.OperatorId);
             allInspections.Concat(inspectionList); // vėlesniam pasikartojimų tikrinimui
-            return verifyMethod(inspectionList); // returns a StringBuilder
+            List<BadData> bdList = verifyMethod(inspectionList, operatorData.OperatorId);
+            return BadDataReportCreator.CreatePlainTxt(bdList);
         }
 
         private static StringBuilder fetchConvertVerifySpreadsheet(
@@ -68,7 +69,7 @@ namespace Weldings
             return sb.AppendLine("Pirmieji").Append(pirmiejiProblems).AppendLine("Nepirmieji").Append(nepirmiejiProblems);
         }
 
-        internal static StringBuilder FetchConvertVerify(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges)
+        public static StringBuilder FetchConvertVerify(SheetsService service, Spreadsheets.Operator[] operators, Spreadsheets.SheetsRanges allRanges)
         {
             StringBuilder sb = new StringBuilder(DateTime.Now.ToShortDateString()).Append(", ").AppendLine(DateTime.Now.ToShortTimeString());
 
