@@ -154,7 +154,6 @@ namespace Weldings
                 sb.AppendLine(errorText);
                 sb.AppendLine(Messages.Default.FailureInfo + dbuEx.InnerException.Message);
                 ErrorMessage(errorText);
-                LogWriter.Log(dbuEx);
                 if (Settings.Default.AbortOnFailedRollback)
                 {
                     throw dbuEx;

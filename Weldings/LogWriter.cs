@@ -88,7 +88,7 @@ namespace Weldings
                     DateTime.Now.ToLongTimeString());
                 writer.WriteLine(" : ");
                 writer.WriteLine(" : " + logText);
-                writer.WriteLine("-------------------------------");
+                writer.WriteLine("------------------------------------");
             }
             catch (Exception ex)
             {
@@ -99,16 +99,14 @@ namespace Weldings
         {
             if (exception.InnerException == null)
             {
-                sb.AppendFormat("\t\tException Type: {0}", exception.GetType()).AppendLine();
-                sb.AppendFormat("Message: {0}", exception.Message).AppendLine();
-                sb.AppendFormat("Source: {0}", exception.Source).AppendLine();
-                sb.AppendFormat("Stack trace: {0}", exception.StackTrace).AppendLine();
-                sb.AppendFormat("Target: {0}", exception.TargetSite).AppendLine();
+                 exceptionRecord(exception.InnerException, sb);
             }
-            else
-            {
-                exceptionRecord(exception.InnerException, sb);
-            }
+
+            sb.AppendFormat("\t\t------- Exception Type: {0}", exception.GetType()).AppendLine();
+            sb.AppendFormat("Message: {0}", exception.Message).AppendLine();
+            sb.AppendFormat("Source: {0}", exception.Source).AppendLine();
+            sb.AppendFormat("Stack trace: {0}", exception.StackTrace).AppendLine();
+            sb.AppendFormat("Target: {0}", exception.TargetSite).AppendLine();
         }
     }
 
