@@ -111,7 +111,7 @@ namespace Weldings
 
                 // specifinis nepirmiesiems
                 value = getRowItem("id", mapping, row);
-                string idZyma = value.ToString(); // žyma, pažymėti, kurioje vietoje problemos
+                string idZyma = value == null ? "no id" : value.ToString(); // žyma, pažymėti, kurioje vietoje problemos
                 try
                 {
                     id = Convert.ToInt64(value);

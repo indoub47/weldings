@@ -143,7 +143,7 @@ namespace Weldings
             }
             else
             {
-                sb.AppendLine(Messages.Default.GSDataVerifyOK);
+                sb.AppendLine(operSheet + Messages.Default.GSDataVerifyOK);
             }
 
             return true;

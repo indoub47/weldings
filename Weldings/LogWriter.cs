@@ -97,7 +97,7 @@ namespace Weldings
 
         private static void exceptionRecord(Exception exception, StringBuilder sb)
         {
-            if (exception.InnerException == null)
+            if (exception.InnerException != null)
             {
                  exceptionRecord(exception.InnerException, sb);
             }
