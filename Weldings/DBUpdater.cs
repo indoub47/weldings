@@ -17,8 +17,10 @@ namespace Weldings
             using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
             {
                 OleDbTransaction trans = null;
-                OleDbCommand cmd = new OleDbCommand();
-                cmd.Connection = conn;
+                OleDbCommand cmd = new OleDbCommand
+                {
+                    Connection = conn
+                };
                 try
                 {
                     conn.Open();
@@ -82,8 +84,10 @@ namespace Weldings
             using (OleDbConnection conn = new OleDbConnection(string.Format(Settings.Default.OleDbConnectionString, Settings.Default.AccessDbPath)))
             {
                 OleDbTransaction trans = null;
-                OleDbCommand cmd = new OleDbCommand();
-                cmd.Connection = conn;
+                OleDbCommand cmd = new OleDbCommand
+                {
+                    Connection = conn
+                };
                 try
                 {
                     conn.Open();
@@ -119,7 +123,9 @@ namespace Weldings
                 cmd.Parameters.Clear();
                 if (wi.KelintasTikrinimas == Kelintas.papildomas)
                 {
-                    cmd.CommandText = "UPDATE ssd SET Pastaba = Pastaba + \"" + wi.Pastaba + "\";";
+                    cmd.CommandText = "UPDATE ssd SET Pastaba = Pastaba + @pastaba WHERE number = @id;";
+                    cmd.Parameters.AddWithValue("@pastaba", wi.Pastaba);
+                    cmd.Parameters.AddWithValue("@id", wi.Id);
                 }
                 else
                 {
