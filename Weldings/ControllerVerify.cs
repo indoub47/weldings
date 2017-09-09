@@ -6,13 +6,23 @@ using System.Threading.Tasks;
 using Google.Apis.Sheets.v4;
 using System.Windows.Forms;
 using Weldings.Properties;
+using System.ComponentModel;
 
 namespace Weldings
 {
     public static class ControllerVerify
     {
         private delegate List<WeldingInspection> ConvertDataToWIMethod(List<IList<Object>> data, string[] mapping, string operId);
-        private delegate List<BadData> VerifyObjectsMethod(List<WeldingInspection> inspectionList, string operId);
+        private delegate List<BadData> VerifyObjectsMethod(List<WeldingInspection> inspectionList, string operId); 
+
+        public static EventHandler<ProgressChangedEventArgs> ProgressUpdated;
+
+        public static void OnProgressUpdated(int progressCount, string progressInfo)
+        {
+            ProgressUpdated?.Invoke(
+                "Weldings.ControllerVerify", 
+                new ProgressChangedEventArgs(progressCount, progressInfo));
+        }
 
         // kaupiami visi patikrinimai tam, kad būtų galima pagauti, jeigu tą patį suvirinimą tikrina du kartus
         private static IEnumerable<WeldingInspection> allInspections;
@@ -38,6 +48,9 @@ namespace Weldings
             {
                 sb.AppendLine();
 
+                OnProgressUpdated(0,
+                    $"verifying data: operator - {oper.OperatorId}, sheet - \"{allRanges.Pirmieji.SheetName}\"...");
+
                 DoControllSingleSheet(
                     service,
                     oper,
@@ -45,6 +58,9 @@ namespace Weldings
                     DataConverter.ConvertPirmieji,
                     ObjectVerifier.VerifyPirmieji,
                     sb);
+
+                OnProgressUpdated(0,
+                    $"verifying data: operator - {oper.OperatorId}, sheet - \"{allRanges.Nepirmieji.SheetName}\"...");
 
                 DoControllSingleSheet(
                     service,
@@ -99,9 +115,9 @@ namespace Weldings
             {
                 string errorText = Messages.Default.GSDataFetchFail;
                 sb.AppendLine(errorText);
-                sb.AppendLine(Messages.Default.FailureInfo + ex.Message);
-                ErrorMessage(errorText);
+                sb.AppendLine(Messages.Default.FailureInfo + ex.Message);                
                 LogWriter.Log(ex);
+                OnProgressUpdated(0, errorText);
                 return false;
             }
 
@@ -118,7 +134,7 @@ namespace Weldings
                 string bdListString = BadDataReportCreator.CreateString(bdl).ToString();
                 sb.AppendLine(errorText);
                 sb.AppendLine(bdListString);
-                ErrorMessage(errorText);
+                OnProgressUpdated(0, errorText);
                 return false;
             }
             catch (Exception ex)
@@ -126,8 +142,8 @@ namespace Weldings
                 string errorText = operSheet + Messages.Default.GSDataConvertFail;
                 sb.AppendLine(errorText);
                 sb.AppendLine(Messages.Default.FailureInfo + ex.Message);
-                ErrorMessage(errorText);
                 LogWriter.Log(ex);
+                OnProgressUpdated(0, errorText);
                 return false;
             }
             allInspections = allInspections.Concat(wiList);
@@ -147,17 +163,6 @@ namespace Weldings
             }
 
             return true;
-        }
-
-        private static void ErrorMessage(string message)
-        {
-            if (Settings.Default.ShowErrorMessages)
-            {
-                MessageBox.Show(message,
-                    Messages.Default.VerifyOperationErrorMsgTitle,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
         }
     }
 }

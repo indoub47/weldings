@@ -85,8 +85,7 @@ namespace Weldings.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Tikrinimas atliktas. Dabar bus atidarytas failas su tikrinimo eiga ir išvardintom" +
-            "is problemomis.")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Tikrinimas sėkmingai atliktas. Aptiktos problemos išvardintos faile \"{0}\"")]
         public string VerifyDoneMessage {
             get {
                 return ((string)(this["VerifyDoneMessage"]));
@@ -309,6 +308,18 @@ namespace Weldings.Properties {
             }
             set {
                 this["SettingsSavedBoxTitle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Darbas sėkmingai atliktas. Rezultatai ir problemos išvardintos faile \"{0}\"")]
+        public string UpdateDoneMessage {
+            get {
+                return ((string)(this["UpdateDoneMessage"]));
+            }
+            set {
+                this["UpdateDoneMessage"] = value;
             }
         }
     }

@@ -266,18 +266,6 @@ namespace Weldings.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool ShowErrorMessages {
-            get {
-                return ((bool)(this["ShowErrorMessages"]));
-            }
-            set {
-                this["ShowErrorMessages"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool CreateDBBackup {
             get {
                 return ((bool)(this["CreateDBBackup"]));

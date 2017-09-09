@@ -43,7 +43,7 @@ namespace Weldings
 
                 // specifinis pirmiesiems
                 value = getRowItem("suvirino", mapping, row);
-                if (value == null || value.ToString().Trim() == string.Empty)
+                if (isEmpty(value))
                 {
                     badDataList.Add(new BadData(operatorius, SheetType.pirmieji, vietosKodoSurogatas, "kas suvirino"));
                 }
@@ -133,7 +133,7 @@ namespace Weldings
 
                 // specifinis nepirmiems
                 value = getRowItem("kelintas_tikrinimas", mapping, row);
-                if (value == null || value.ToString().Trim() == string.Empty || !new[]{"2", "3", "4", "papild"}.Contains(value.ToString().Trim()))
+                if (isEmpty(value) || !new[]{"2", "3", "4", "papild"}.Contains(value.ToString().Trim()))
                 {
                     badDataList.Add(new BadData(operatorius, SheetType.nepirmieji, idZyma, "kelintas tikrinimas"));
                 }
@@ -192,7 +192,7 @@ namespace Weldings
             List<string> messages = new List<string>();
 
             value = getRowItem("linija", mapping, row);
-            if (value == null || value.ToString().Trim() == string.Empty)
+            if (isEmpty(value))
             {
                 messages.Add("XX.oooo.oo.oo.o");
             }
@@ -222,7 +222,7 @@ namespace Weldings
             }
 
             value = getRowItem("pk", mapping, row);
-            if (value == null || value.ToString().Trim() == string.Empty)
+            if (isEmpty(value))
             {
                 pk = null;
             }
@@ -249,7 +249,7 @@ namespace Weldings
             }
 
             value = getRowItem("siule", mapping, row);
-            if (value == null || value.ToString().Trim() == string.Empty)
+            if (isEmpty(value))
             {
                 siule = null;
             }
@@ -266,7 +266,7 @@ namespace Weldings
             }
 
             value = getRowItem("salyginis_kodas", mapping, row);
-            if (value == null || value.ToString().Trim() == string.Empty)
+            if (isEmpty(value))
             {
                 messages.Add("salyginis kodas");
             }
@@ -276,7 +276,7 @@ namespace Weldings
             }
 
             value = getRowItem("aparatas", mapping, row);
-            if (value == null || value.ToString().Trim() == string.Empty)
+            if (isEmpty(value))
             {
                 messages.Add("defektoskopo kodas");
             }
@@ -325,7 +325,7 @@ namespace Weldings
         // jeigu tuščias row cell, grąžina brūkšnelį. 
         private static object getRowCellObject(object obj)
         {
-            if (obj == null || obj.ToString().Trim() == string.Empty)
+            if (isEmpty(obj))
             {
                 return (object)"_";
             }
@@ -348,6 +348,11 @@ namespace Weldings
             int ind = Array.IndexOf(mapping, colName);
             if (row.Count - 1 < ind) return null;
             return row[ind];
+        }
+
+        private static bool isEmpty(object value)
+        {
+            return value == null || value.ToString().Trim() == string.Empty;
         }
     }
 }

@@ -18,7 +18,7 @@
       <Value Profile="(Default)">Data Verify Error</Value>
     </Setting>
     <Setting Name="VerifyDoneMessage" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Tikrinimas atliktas. Dabar bus atidarytas failas su tikrinimo eiga ir išvardintomis problemomis.</Value>
+      <Value Profile="(Default)">Tikrinimas sėkmingai atliktas. Aptiktos problemos išvardintos faile "{0}"</Value>
     </Setting>
     <Setting Name="TaskAccomplishedTitle" Type="System.String" Scope="User">
       <Value Profile="(Default)">Task Accomplished</Value>
@@ -73,6 +73,9 @@
     </Setting>
     <Setting Name="SettingsSavedBoxTitle" Type="System.String" Scope="User">
       <Value Profile="(Default)">Operation Success</Value>
+    </Setting>
+    <Setting Name="UpdateDoneMessage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Darbas sėkmingai atliktas. Rezultatai ir problemos išvardintos faile "{0}"</Value>
     </Setting>
   </Settings>
 </SettingsFile>

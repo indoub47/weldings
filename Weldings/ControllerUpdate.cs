@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Google.Apis.Sheets.v4;
 using System.Windows.Forms;
 using Weldings.Properties;
+using System.ComponentModel;
 
 namespace Weldings
 {
@@ -13,6 +14,15 @@ namespace Weldings
     {
         private delegate List<WeldingInspection> ConvertDataToWIMethod(List<IList<Object>> data, string[] mapping, string operId);
         private delegate int DbUpdateMethod(List<WeldingInspection> inspectionList);
+
+        public static EventHandler<ProgressChangedEventArgs> ProgressUpdated;
+
+        public static void OnProgressUpdated(int progressCount, string progressInfo)
+        {
+            ProgressUpdated?.Invoke(
+                "Weldings.ControllerUpdate",
+                new ProgressChangedEventArgs(progressCount, progressInfo));
+        }
 
         // kaupiami visi patikrinimai reportui į žurnalą
         private static IEnumerable<WeldingInspection> allInspections;
@@ -42,6 +52,9 @@ namespace Weldings
 
             foreach (Spreadsheets.Operator oper in operators)
             {
+                OnProgressUpdated(0,
+                    $"updating DB: operator - {oper.OperatorId}, sheet - \"{allRanges.Pirmieji.SheetName}\"...");
+
                 DoControllSingleSheet(
                     service,
                     oper,
@@ -49,6 +62,9 @@ namespace Weldings
                     DataConverter.ConvertPirmieji,
                     DBUpdater.DoPirmieji,
                     sb);
+
+                OnProgressUpdated(0,
+                    $"updating DB: operator - {oper.OperatorId}, sheet - \"{allRanges.Nepirmieji.SheetName}\"...");
 
                 DoControllSingleSheet(
                     service,
@@ -102,7 +118,7 @@ namespace Weldings
                 string errorText = Messages.Default.GSDataFetchFail;
                 sb.AppendLine(errorText);
                 sb.AppendLine(Messages.Default.FailureInfo + ex.Message);
-                ErrorMessage(errorText);
+                OnProgressUpdated(0, errorText);
                 LogWriter.Log(ex);
                 return false;
             }
@@ -120,7 +136,7 @@ namespace Weldings
                 string bdListString = BadDataReportCreator.CreateString(bdEx.BadDataList.ToList()).ToString();
                 sb.AppendLine(errorText);
                 sb.AppendLine(bdListString);
-                ErrorMessage(errorText);
+                OnProgressUpdated(0, errorText);
                 return false;
             }
             catch (Exception ex)
@@ -128,7 +144,7 @@ namespace Weldings
                 string errorText = operSheet + Messages.Default.GSDataConvertFail;
                 sb.AppendLine(errorText);
                 sb.AppendLine(Messages.Default.FailureInfo + ex.Message);
-                ErrorMessage(errorText);
+                OnProgressUpdated(0, errorText);
                 LogWriter.Log(ex);
                 return false;
             }
@@ -144,7 +160,7 @@ namespace Weldings
                 string errorText = operSheet + dbuEx.Message;
                 sb.AppendLine(errorText);
                 sb.AppendLine(Messages.Default.FailureInfo + dbuEx.InnerException.Message);
-                ErrorMessage(errorText);
+                OnProgressUpdated(0, errorText);
                 LogWriter.Log(dbuEx);
                 return false;
             }
@@ -153,7 +169,7 @@ namespace Weldings
                 string errorText = operSheet + dbuEx.Message;
                 sb.AppendLine(errorText);
                 sb.AppendLine(Messages.Default.FailureInfo + dbuEx.InnerException.Message);
-                ErrorMessage(errorText);
+                OnProgressUpdated(0, errorText);
                 if (Settings.Default.AbortOnFailedRollback)
                 {
                     throw dbuEx;
@@ -175,25 +191,12 @@ namespace Weldings
                 sb.AppendLine(errorText);
                 sb.AppendLine(Messages.Default.FailureInfo + ex.Message);
                 sb.AppendLine(Messages.Default.GSUpdateFailInstruction);
-                ErrorMessage(errorText);
+                OnProgressUpdated(0, errorText);
                 LogWriter.Log(ex);
                 return true; // pagrindinis darbas - db updateinimas - pavyko, o sheet updateinimas yra tik detalės
             }
 
             return true;
         }
-
-        private static void ErrorMessage(string message)
-        {
-            if (Settings.Default.ShowErrorMessages)
-            {
-                MessageBox.Show(message,
-                  Messages.Default.UpdateOperationErrorMsgTitle,
-                  MessageBoxButtons.OK,
-                  MessageBoxIcon.Error);
-            }
-        }
-
-
     }
 }

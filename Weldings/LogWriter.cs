@@ -73,7 +73,7 @@ namespace Weldings
                 writer.WriteLine(sb);
                 writer.WriteLine("-------------------------------");
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
@@ -90,7 +90,7 @@ namespace Weldings
                 writer.WriteLine(" : " + logText);
                 writer.WriteLine("------------------------------------");
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
