@@ -52,11 +52,11 @@ namespace Weldings
                     suvirino = value.ToString().Trim();
                 }
 
-                // specifinis pirmiesiems
-                if (kelias != -1 && kelias != 8 && pk == null)
-                {
-                    badDataList.Add(new BadData(operatorius, SheetType.pirmieji, vietosKodoSurogatas, "pk"));
-                }
+                //// specifinis pirmiesiems
+                //if (kelias != -1 && kelias != 8 && pk == null)
+                //{
+                //    badDataList.Add(new BadData(operatorius, SheetType.pirmieji, vietosKodoSurogatas, "pk"));
+                //}
 
                 // specifinis pirmiesiems
                 if ((kelias == 8 || kelias == 9) && siule != null)
